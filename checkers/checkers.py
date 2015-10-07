@@ -1,5 +1,5 @@
 import sys, pygame
-from gameboard.gameboard import Gameboard
+from model import Model, Chip
 from gameboard.coordinate import Coordinate
 
 ######### SAMPLE BOARD ###########
@@ -18,6 +18,7 @@ from gameboard.coordinate import Coordinate
 # window size
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 570
+MARGIN = 25
 SQR_WIDTH = 65
 SQR_HEIGHT = 65
 
@@ -33,41 +34,50 @@ blackChip = 0, 0, 0
 whiteChip = 255, 0, 0
 
 # generate squares for the board
-drawX, drawY = 0, 0
+drawX, drawY = MARGIN - SQR_WIDTH, WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
 squareRects = {}
 
 for i in range(64):
-    if( i%8 == 0 ): # we finished the row, move down
-        drawY += SQR_HEIGHT
-        drawX = 25
-        if( i==0 ):
-            drawY = 25
+    if i % 8 == 0: # new row
+        drawX += SQR_WIDTH
+        drawY = WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
     squareRects[Coordinate(i)] = pygame.Rect(drawX,drawY,SQR_WIDTH,SQR_HEIGHT)
-    drawX += SQR_WIDTH
+    drawY -= SQR_HEIGHT
+
+model = Model()
 
 def main( ):
-    drawSquares(screen, squareRects)
+    drawSquares()
+    drawChips()
     while 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-def drawSquares( screen , squares ):
+def drawSquares():
     screen.fill(board)
     for i in range(8):
         for j in range(8):
             index = i * 8 + j
             if i % 2 : #odd row, start with light square
                 if j % 2 : #odd square, make it dark
-                    pygame.draw.rect(screen, whiteSquare, squares[index])
+                    pygame.draw.rect(screen, blackSquare, squareRects[index])
                 else: #even square make it light
-                    pygame.draw.rect(screen, blackSquare, squares[index])
+                    pygame.draw.rect(screen, whiteSquare, squareRects[index])
             else: #even row, start with dark square
                 if j % 2 : #odd square, make it light
-                    pygame.draw.rect(screen, blackSquare, squares[index])
+                    pygame.draw.rect(screen, whiteSquare, squareRects[index])
                 else:# make it dark
-                    pygame.draw.rect(screen, whiteSquare, squares[index])
+                    pygame.draw.rect(screen, blackSquare, squareRects[index])
     pygame.display.flip()
+
+def drawChips():
+    for k, c in model.chips.items():
+        center = squareRects[k].center
+        color = whiteChip if c.color == Chip.Color.white else blackChip
+        pygame.draw.circle(screen, color, center, 25)
+    pygame.display.flip()
+
 
 if __name__ == '__main__':
     main()
