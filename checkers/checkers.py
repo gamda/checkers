@@ -59,14 +59,14 @@ def drawSquares( screen , squares ):
             index = i * 8 + j
             if i % 2 : #odd row, start with light square
                 if j % 2 : #odd square, make it dark
-                    pygame.draw.rect(screen, blackSquare, squares[index])
-                else: #even square make it light
                     pygame.draw.rect(screen, whiteSquare, squares[index])
+                else: #even square make it light
+                    pygame.draw.rect(screen, blackSquare, squares[index])
             else: #even row, start with dark square
                 if j % 2 : #odd square, make it light
-                    pygame.draw.rect(screen, whiteSquare, squares[index])
-                else:# make it dark
                     pygame.draw.rect(screen, blackSquare, squares[index])
+                else:# make it dark
+                    pygame.draw.rect(screen, whiteSquare, squares[index])
     pygame.display.flip()
 
 if __name__ == '__main__':
