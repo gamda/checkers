@@ -1,6 +1,6 @@
 from enum import Enum
 from gameboard.gameboard import Gameboard
-from gameboard.gameboard import Direction as Direction
+from gameboard.gameboard import Direction
 from gameboard.coordinate import Coordinate
 
 class Chip:
