@@ -78,5 +78,44 @@ class TestModel(unittest.TestCase):
         self.assertEqual(self.model.board.getContent(Coordinate.h8).color, 
             Chip.Color.black)
 
+    def test_chip_available_moves_white_turn(self):
+        # None white chip with one move
+        moves = self.model._chipAvailableMoves(Coordinate.a3)
+        answer = set([Coordinate.b4])
+        self.assertEqual(moves, answer)
+        # None white chip with two moves
+        moves = self.model._chipAvailableMoves(Coordinate.c3)
+        answer = set([Coordinate.b4, Coordinate.d4])
+        self.assertEqual(moves, answer)
+        # None black chip, no moves
+        moves = self.model._chipAvailableMoves(Coordinate.b6)
+        answer = set()
+        self.assertEqual(moves, answer)
+        # None empty square, no moves
+        moves = self.model._chipAvailableMoves(Coordinate.c6)
+        self.assertEqual(moves, answer)
+
+    # def test_available_moves_raises_TypeError(self):
+    #     self.assertRaises(TypeError,self.model._chipAvailableMoves,"notCoordinate")
+
+    # def test_available_moves_white(self):
+    #     modelMoves = self.model.validMoves()
+    #     correctMoves = set([(Coordinate.a3,Coordinate.b4),
+    #                         (Coordinate.c3,Coordinate.b4),
+    #                         (Coordinate.c3,Coordinate.d4),
+    #                         (Coordinate.e3,Coordinate.d4),
+    #                         (Coordinate.e3,Coordinate.f4),
+    #                         (Coordinate.g3,Coordinate.f4),
+    #                         (Coordinate.g3,Coordinate.h4)])
+    #     self.assertEqual(modelMoves, correctMoves)
+
+    # def test_move_chip(self):
+    #     model.move()
+
+    # def test_white_turn(self):
+    #     self.assertEqual(self.model.whoseTurn(), Chip.Color.white)
+
+    # def test_black_turn(self):
+
 if __name__ == '__main__':
     unittest.main()
