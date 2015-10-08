@@ -94,7 +94,8 @@ class Model:
                 pass 
             elif neighbor["content"] is None: # empty square, valid move
                 moves.add((square, neighbor["coordinate"]))
-            elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
+            elif neighbor["content"].color != color
+            : # Check next square for jump
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor["content"] is None:
                     moves.add((square, nextNeighbor["coordinate"]))
@@ -128,7 +129,10 @@ class Model:
         """
         moves = set()
         if self.turn == Chip.Color.white:
-            for coord, chip in self.chips.items():
+            for coord, chip in self.chips.items(): # soldiers
+                moves = moves | self._chipAvailableMoves(coord)
+        else: # self.turn = black
+            for coord, chip in self.chips.items(): # soldiers
                 moves = moves | self._chipAvailableMoves(coord)
         return moves
 

@@ -126,6 +126,18 @@ class TestModel(unittest.TestCase):
                             (Coordinate.g3,Coordinate.h4)])
         self.assertEqual(modelMoves, correctMoves)
 
+    def test_available_moves_black(self):
+        self.model.move(Coordinate.a3,Coordinate.b4)
+        modelMoves = self.model.availableMoves()
+        correctMoves = set([(Coordinate.b6,Coordinate.a5),
+                            (Coordinate.b6,Coordinate.c5),
+                            (Coordinate.d6,Coordinate.c5),
+                            (Coordinate.d6,Coordinate.e5),
+                            (Coordinate.f6,Coordinate.e5),
+                            (Coordinate.f6,Coordinate.g5),
+                            (Coordinate.h6,Coordinate.g5)])
+        self.assertEqual(modelMoves, correctMoves)
+
     def test_move_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.move,
             origin = "notCoordinate",
