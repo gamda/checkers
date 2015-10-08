@@ -70,19 +70,9 @@ def findSquareClicked(pos):
 
 def drawSquares():
     screen.fill(board)
-    for i in range(8):
-        for j in range(8):
-            index = i * 8 + j
-            if i % 2 : #odd row, start with light square
-                if j % 2 : #odd square, make it dark
-                    pygame.draw.rect(screen, blackSquare, squareRects[index])
-                else: #even square make it light
-                    pygame.draw.rect(screen, whiteSquare, squareRects[index])
-            else: #even row, start with dark square
-                if j % 2 : #odd square, make it light
-                    pygame.draw.rect(screen, whiteSquare, squareRects[index])
-                else:# make it dark
-                    pygame.draw.rect(screen, blackSquare, squareRects[index])
+    for i in Coordinate:
+        color = whiteOrBlackSquare(i)
+        pygame.draw.rect(screen, color, squareRects[i])
     pygame.display.flip()
 
 def drawChips():
