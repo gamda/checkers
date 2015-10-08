@@ -96,7 +96,7 @@ class Model:
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor["content"] is None:
                     moves.add((square, nextNeighbor["coordinate"]))
-        return moves
+        return _soldierChipAvailableMoves(Chips.Color.white, square)
 
     def _blackSoldierChipAvailableMoves(self, square):
         if self.chips[square].color != Chip.Color.black:
@@ -112,8 +112,24 @@ class Model:
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor["content"] is None:
                     moves.add((square, nextNeighbor["coordinate"]))
-        return moves
+        return _soldierChipAvailableMoves(Chips.Color.black, square)
 
+    def _soldierChipAvailableMoves(self, color, square):
+        whiteDirections = [Direction.topLeft, Direction.topRight]
+        blackDirections = [Direction.btmLeft, Direction.btmRight]
+        directions = whiteDirections if color == Chip.Color.white else blackDirections
+
+        for direction in directions:
+            neighbor = self._neighborContentInDirection(square, direction)
+            if neighbor is False: # outside the board
+                pass 
+            elif neighbor["content"] is None: # empty square, valid move
+                moves.add((square, neighbor["coordinate"]))
+            elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
+                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
+                if nextNeighbor["content"] is None:
+                    moves.add((square, nextNeighbor["coordinate"]))
+        return moves
 
     def _chipAvailableMoves(self, square):
         if square not in self.chips.keys() or self.board.getContent(square) is None:
