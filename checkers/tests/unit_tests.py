@@ -96,23 +96,24 @@ class TestModel(unittest.TestCase):
         moves = self.model._chipAvailableMoves(Coordinate.c6)
         self.assertEqual(moves, answer)
 
-    # def test_chip_available_moves_black_turn(self):
-    #     # Black chip with one move
-    #     moves = self.model._chipAvailableMoves(Coordinate.h6)
-    #     answer = set([(Coordinate.a3,Coordinate.b4)])
-    #     self.assertEqual(moves, answer)
-    #     # Black chip with two moves
-    #     moves = self.model._chipAvailableMoves(Coordinate.d6)
-    #     answer = set([(Coordinate.c3,Coordinate.b4),
-    #                     (Coordinate.c3,Coordinate.d4)])
-    #     self.assertEqual(moves, answer)
-    #     # White chip, no moves
-    #     moves = self.model._chipAvailableMoves(Coordinate.a5)
-    #     answer = set()
-    #     self.assertEqual(moves, answer)
-    #     # Empty square, no moves
-    #     moves = self.model._chipAvailableMoves(Coordinate.c6)
-    #     self.assertEqual(moves, answer)
+    def test_chip_available_moves_black_turn(self):
+        self.model.move(Coordinate.a3,Coordinate.b4)
+        # Black chip with one move
+        moves = self.model._chipAvailableMoves(Coordinate.h6)
+        answer = set([(Coordinate.h6,Coordinate.g5)])
+        self.assertEqual(moves, answer)
+        # Black chip with two moves
+        moves = self.model._chipAvailableMoves(Coordinate.d6)
+        answer = set([(Coordinate.d6,Coordinate.c5),
+                        (Coordinate.d6,Coordinate.e5)])
+        self.assertEqual(moves, answer)
+        # White chip, no moves
+        moves = self.model._chipAvailableMoves(Coordinate.b4)
+        answer = set()
+        self.assertEqual(moves, answer)
+        # Empty square, no moves
+        moves = self.model._chipAvailableMoves(Coordinate.c6)
+        self.assertEqual(moves, answer)
 
     def test_available_moves_white(self):
         modelMoves = self.model.availableMoves()
@@ -143,7 +144,7 @@ class TestModel(unittest.TestCase):
         self.assertIs(self.model.board.getContent(Coordinate.a3), None)
         self.assertEqual(self.model.board.getContent(Coordinate.b4), chip)
         self.assertTrue(answer)
-        self.assertFalse(self.model.turn)
+        self.assertEqual(self.model.turn, Chip.Color.black)
 
 
 

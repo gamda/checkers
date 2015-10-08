@@ -98,6 +98,22 @@ class Model:
                     moves.add((square, nextNeighbor["coordinate"]))
         return moves
 
+    def _blackSoldierChipAvailableMoves(self, square):
+        if self.chips[square].color != Chip.Color.black:
+            return set()
+        moves = set()
+        for direction in [Direction.btmLeft, Direction.btmRight]:
+            neighbor = self._neighborContentInDirection(square, direction)
+            if neighbor is False: # outside the board
+                pass 
+            elif neighbor["content"] is None: # empty square, valid move
+                moves.add((square, neighbor["coordinate"]))
+            elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
+                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
+                if nextNeighbor["content"] is None:
+                    moves.add((square, nextNeighbor["coordinate"]))
+        return moves
+
 
     def _chipAvailableMoves(self, square):
         if square not in self.chips.keys() or self.board.getContent(square) is None:
@@ -106,9 +122,11 @@ class Model:
         chip = self.chips[square]
         if chip.color != self.turn:
             return set()
-        if chip.color == Chip.Color.white:
-            if chip.type == Chip.Type.soldier:
+        if chip.type == Chip.Type.soldier:
+            if chip.color == Chip.Color.white:
                 return self._whiteSoldierChipAvailableMoves(square)
+            else: # chip.color = black
+                return self._blackSoldierChipAvailableMoves(square)
 
     def availableMoves(self):
         """Returns a list with tuples of Coordinate values of all available moves
@@ -147,7 +165,9 @@ class Model:
         if not (origin, destination) in self.availableMoves():
             return False
         self.board.move(origin, destination)
-        self.turn = not self.turn
+        self.turn = Chip.Color.black \
+                    if self.turn == Chip.Color.white \
+                    else Chip.Color.white
         return True
 
 
