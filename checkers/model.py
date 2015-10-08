@@ -68,7 +68,7 @@ class Model:
                         "content": self.board.getContent(newNeighbor)}
         return False
 
-    def _whiteSoldierChipAvailableMoves(self, square):
+    def _soldierChipAvailableMoves(self, color, square):
         """Returns a list with tuples of Coordinate values of available moves for the chip
 
         This function is meant to be called by _chipAvailableMoves, which already
@@ -83,42 +83,11 @@ class Model:
             the form (Coordinate.origin, Coordinate.destination)
 
         """
-        if self.chips[square].color != Chip.Color.white:
-            return set()
-        moves = set()
-        for direction in [Direction.topLeft, Direction.topRight]:
-            neighbor = self._neighborContentInDirection(square, direction)
-            if neighbor is False: # outside the board
-                pass 
-            elif neighbor["content"] is None: # empty square, valid move
-                moves.add((square, neighbor["coordinate"]))
-            elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
-                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor["content"] is None:
-                    moves.add((square, nextNeighbor["coordinate"]))
-        return _soldierChipAvailableMoves(Chips.Color.white, square)
-
-    def _blackSoldierChipAvailableMoves(self, square):
-        if self.chips[square].color != Chip.Color.black:
-            return set()
-        moves = set()
-        for direction in [Direction.btmLeft, Direction.btmRight]:
-            neighbor = self._neighborContentInDirection(square, direction)
-            if neighbor is False: # outside the board
-                pass 
-            elif neighbor["content"] is None: # empty square, valid move
-                moves.add((square, neighbor["coordinate"]))
-            elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
-                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor["content"] is None:
-                    moves.add((square, nextNeighbor["coordinate"]))
-        return _soldierChipAvailableMoves(Chips.Color.black, square)
-
-    def _soldierChipAvailableMoves(self, color, square):
         whiteDirections = [Direction.topLeft, Direction.topRight]
         blackDirections = [Direction.btmLeft, Direction.btmRight]
         directions = whiteDirections if color == Chip.Color.white else blackDirections
 
+        moves = set()
         for direction in directions:
             neighbor = self._neighborContentInDirection(square, direction)
             if neighbor is False: # outside the board
@@ -140,9 +109,9 @@ class Model:
             return set()
         if chip.type == Chip.Type.soldier:
             if chip.color == Chip.Color.white:
-                return self._whiteSoldierChipAvailableMoves(square)
+                return self._soldierChipAvailableMoves(Chip.Color.white, square)
             else: # chip.color = black
-                return self._blackSoldierChipAvailableMoves(square)
+                return self._soldierChipAvailableMoves(Chip.Color.black, square)
 
     def availableMoves(self):
         """Returns a list with tuples of Coordinate values of all available moves
