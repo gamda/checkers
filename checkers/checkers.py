@@ -60,7 +60,7 @@ def main( ):
                 # a click happened
                 #-----------------
                 square = findSquareClicked(event.pos)
-                highlightSquare(square)
+                highlightSquares(square)
 
 def findSquareClicked(pos):
     for k, s in squareRects.items():
@@ -92,35 +92,47 @@ def drawChips():
         pygame.draw.circle(screen, color, center, 25)
     pygame.display.flip()
 
-def highlightSquare(coord):
-    if len(highlightedSquares) > 0: # clear previous highlighted
-        unhighlightSquare(highlightedSquares[0])
-    
-    highlightedSquares.append(coord)
-    if coord in model.chips.keys(): # only highlight if there's a chip
-        pygame.draw.rect(screen, highlight, squareRects[coord])
-        height = SQR_HEIGHT - 8
-        width = SQR_WIDTH - 8
-        left = squareRects[coord].left + 4
-        top = squareRects[coord].top + 4
-        sqrColor = whiteOrBlackSquare(coord)
-        highlightedRect = pygame.Rect(left,top,width,height)
-        pygame.draw.rect(screen, sqrColor, highlightedRect)
+def highlightSquares(coord):
+    for s in highlightedSquares: # clear previous highlighted
+        unhighlightSquare(s)
 
+    if coord in model.chips.keys() and \
+            model.turn == model.chips[coord].color: # only highlight if there's a chip
+        toHighlight = [coord]
+        moves = model._chipAvailableMoves(coord) # (origin, destination)
+        for m in moves:
+            toHighlight.append(m[1])
+        for s in toHighlight:
+            highlightOneSquare(s)
+
+def highlightOneSquare(coord):
+    highlightedSquares.append(coord)
+    pygame.draw.rect(screen, highlight, squareRects[coord])
+    height = SQR_HEIGHT - 8
+    width = SQR_WIDTH - 8
+    left = squareRects[coord].left + 4
+    top = squareRects[coord].top + 4
+    sqrColor = whiteOrBlackSquare(coord)
+    highlightedRect = pygame.Rect(left,top,width,height)
+    pygame.draw.rect(screen, sqrColor, highlightedRect)
+
+    if coord in model.chips.keys():
         center = squareRects[coord].center
         color = whiteChip if model.chips[coord].color == Chip.Color.white else blackChip
         pygame.draw.circle(screen, color, center, 25)
     pygame.display.flip()
 
 def unhighlightSquare(coord):
+    global highlightedSquares
+    highlightedSquares = highlightedSquares[1:]
     color = whiteOrBlackSquare(coord)
     pygame.draw.rect(screen,color, squareRects[coord])
-    highlightedSquares.remove(coord)
-    pygame.display.flip()
+    
     if coord in model.chips.keys():
         center = squareRects[coord].center
         color = whiteChip if model.chips[coord].color == Chip.Color.white else blackChip
         pygame.draw.circle(screen, color, center, 25)
+    pygame.display.flip()
 
 def whiteOrBlackSquare(coord):
     for i in range(8):
