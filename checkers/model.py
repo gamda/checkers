@@ -5,8 +5,8 @@ from gameboard.coordinate import Coordinate
 
 class Chip:
     class Color(Enum):
-        white = 0
-        black = 1
+        white = True
+        black = False
     class Type(Enum):
         soldier = 0
         queen = 1 
@@ -69,7 +69,7 @@ class Model:
         return False
 
     def _whiteSoldierChipAvailableMoves(self, square):
-        """Returns a list with the Coordinate values of available moves for the chip
+        """Returns a list with tuples of Coordinate values of available moves for the chip
 
         This function is meant to be called by _chipAvailableMoves, which already
         checked that the chip exists in both the chips and board.squares dictionaries.
@@ -79,7 +79,8 @@ class Model:
         Args:
             square (Coordinate): the square where the chip is/should be
         Returns:
-            list: Coordinate values of valid moves for the chip
+            list: tuple of Coordinate values of valid moves for the chip. They have
+            the form (Coordinate.origin, Coordinate.destination)
 
         """
         if self.chips[square].color != Chip.Color.white:
@@ -90,12 +91,12 @@ class Model:
             if neighbor is False: # outside the board
                 pass 
             elif neighbor["content"] is None: # empty square, valid move
-                moves.add(self.board.neighborInDirection(square, direction))
+                moves.add((square, neighbor["coordinate"]))
             elif neighbor["content"].color == Chip.Color.black: # Check next square for jump
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor["content"] is None:
-                    moves.add(nextNeighbor["coordinate"])
-        return set(moves)
+                    moves.add((square, nextNeighbor["coordinate"]))
+        return moves
 
 
     def _chipAvailableMoves(self, square):
@@ -105,15 +106,49 @@ class Model:
         chip = self.chips[square]
         if chip.color != self.turn:
             return set()
-        moves = []
         if chip.color == Chip.Color.white:
             if chip.type == Chip.Type.soldier:
                 return self._whiteSoldierChipAvailableMoves(square)
 
-    def validMoves(self):
-        if not isinstance(square, Coordinate):
-            raise TypeError("square variable must be from Coordinate enum")
-        return set(range(7))
+    def availableMoves(self):
+        """Returns a list with tuples of Coordinate values of all available moves
+
+        This function is meant to be called by _chipAvailableMoves, which already
+        checked that the chip exists in both the chips and board.squares dictionaries.
+        For this reason, it doesn't check to see if square is a Coordinate, the check
+        already happened in the previous function.
+
+        Returns:
+            list: tuple of Coordinate values of valid moves for the chip. They have
+            the form (Coordinate.origin, Coordinate.destination)
+
+        """
+        moves = set()
+        if self.turn == Chip.Color.white:
+            for coord, chip in self.chips.items():
+                moves = moves | self._chipAvailableMoves(coord)
+        return moves
+
+    def move(self, origin, destination):
+        """Returns a boolean. True if the move is successful, False if invalid
+
+        Args:
+            origin (Coordinate): the square where the chip is currently
+            destination (Direction): the square where the chip will end
+        Returns:
+            Boolean: True if move is successful, False otherwise
+        Raises:
+            TypeError: if square is not Coordinate or if direction is not Direction
+        """
+        if not isinstance(origin, Coordinate):
+            raise TypeError("origin variable must be from Coordinate enum")
+        if not isinstance(destination, Coordinate):
+            raise TypeError("destination must be from Direction enum")
+        if not (origin, destination) in self.availableMoves():
+            return False
+        self.board.move(origin, destination)
+        self.turn = not self.turn
+        return True
 
 
 
