@@ -160,8 +160,14 @@ class Model:
                     else Chip.Color.white
         return True
 
-    def squareHasChip(self, square):
-        return square in self.chips.keys()
+    def squareHasAllyChip(self, square):
+        if not isinstance(square, Coordinate):
+            raise TypeError("square variable must be from Coordinate enum")
+        # Python's lazy evaluation makes sure this expression will never
+        #   throw KeyError because if the key is not in the dictionary, the
+        #   second expression will not be evaluated
+        return square in self.chips.keys() and \
+                self.chips[square].color == self.turn
 
 
 

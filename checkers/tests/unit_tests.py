@@ -184,11 +184,17 @@ class TestModel(unittest.TestCase):
         self.assertIs(chip, self.model.chips[Coordinate.g5])
         self.assertIs(self.model.turn, Chip.Color.white)
 
-    def test_square_has_chip_empty(self):
-        self.assertFalse(self.model.squareHasChip(Coordinate.a4))
+    def test_move_raises_TypeError(self):
+        self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")
 
-    def test_square_has_chip(self):
-        self.assertTrue(self.model.squareHasChip(Coordinate.a3))
+    def test_square_has_ally_chip_empty(self):
+        self.assertFalse(self.model.squareHasAllyChip(Coordinate.a4))
+
+    def test_square_has_ally_chip_enemy(self):
+        self.assertFalse(self.model.squareHasAllyChip(Coordinate.a7))
+
+    def test_square_has_ally_chip_ally(self):
+        self.assertTrue(self.model.squareHasAllyChip(Coordinate.a3))
 
 
 if __name__ == '__main__':
