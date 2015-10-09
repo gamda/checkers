@@ -160,7 +160,8 @@ class Model:
                     else Chip.Color.white
         return True
 
-
+    def squareHasChip(self, square):
+        return square in self.chips.keys()
 
 
 

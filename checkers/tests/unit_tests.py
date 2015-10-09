@@ -184,6 +184,11 @@ class TestModel(unittest.TestCase):
         self.assertIs(chip, self.model.chips[Coordinate.g5])
         self.assertIs(self.model.turn, Chip.Color.white)
 
+    def test_square_has_chip_empty(self):
+        self.assertFalse(self.model.squareHasChip(Coordinate.a4))
+
+    def test_square_has_chip(self):
+        self.assertTrue(self.model.squareHasChip(Coordinate.a3))
 
 
 if __name__ == '__main__':
