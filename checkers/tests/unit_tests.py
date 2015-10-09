@@ -150,14 +150,18 @@ class TestModel(unittest.TestCase):
         chip = self.model.board.getContent(Coordinate.a3)
         move = self.model.move(Coordinate.a3, Coordinate.c4)
         self.assertFalse(move)
-        self.assertEqual(chip, self.model.board.getContent(Coordinate.a3))
+        self.assertIs(chip, self.model.board.getContent(Coordinate.a3))
+        self.assertNotIn(Coordinate.c4, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.a3])
 
     def test_move_white_valid_no_jump(self):
         chip = self.model.board.getContent(Coordinate.a3)
         move = self.model.move(Coordinate.a3,Coordinate.b4)
         self.assertIs(self.model.board.getContent(Coordinate.a3), None)
-        self.assertEqual(self.model.board.getContent(Coordinate.b4), chip)
         self.assertTrue(move)
+        self.assertIs(self.model.board.getContent(Coordinate.b4), chip)
+        self.assertIn(Coordinate.b4, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.b4])
         self.assertEqual(self.model.turn, Chip.Color.black)
 
     def test_move_black_invalid(self):
@@ -165,16 +169,20 @@ class TestModel(unittest.TestCase):
         chip = self.model.board.getContent(Coordinate.h6)
         move = self.model.move(Coordinate.h6, Coordinate.g4)
         self.assertFalse(move)
-        self.assertEqual(chip, self.model.board.getContent(Coordinate.h6))
+        self.assertIs(chip, self.model.board.getContent(Coordinate.h6))
+        self.assertNotIn(Coordinate.g4, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.h6])
 
     def test_move_black_valid_no_jump(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         chip = self.model.board.getContent(Coordinate.h6)
         move = self.model.move(Coordinate.h6, Coordinate.g5)
         self.assertIs(self.model.board.getContent(Coordinate.h6), None)
-        self.assertEqual(self.model.board.getContent(Coordinate.g5), chip)
         self.assertTrue(move)
-        self.assertEqual(self.model.turn, Chip.Color.white)
+        self.assertIs(self.model.board.getContent(Coordinate.g5), chip)
+        self.assertIn(Coordinate.g5, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.g5])
+        self.assertIs(self.model.turn, Chip.Color.white)
 
 
 

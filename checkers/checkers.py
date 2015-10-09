@@ -90,6 +90,7 @@ def highlightSquares(coord):
             model.turn == model.chips[coord].color: # only highlight if there's a chip
         toHighlight = [coord]
         moves = model._chipAvailableMoves(coord) # (origin, destination)
+        # if len(moves) > 0: # only highlight if there are available moves
         for m in moves:
             toHighlight.append(m[1])
         for s in toHighlight:

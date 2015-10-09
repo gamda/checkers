@@ -153,6 +153,8 @@ class Model:
         if not (origin, destination) in self.availableMoves():
             return False
         self.board.move(origin, destination)
+        self.chips[destination] = self.chips[origin]
+        del self.chips[origin]
         self.turn = Chip.Color.black \
                     if self.turn == Chip.Color.white \
                     else Chip.Color.white
