@@ -126,7 +126,8 @@ def highlightSquares(coord):
     if coord in model.chips.keys() and \
             model.turn == model.chips[coord].color: # only highlight if there's a chip
         toHighlight = [coord]
-        moves = model.chipAvailableMoves(coord) # (origin, destination)
+        moves = model.availableMoves() & \
+                model.chipAvailableMoves(coord)[0] # must be in both
         # if len(moves) > 0: # only highlight if there are available moves
         for m in moves:
             toHighlight.append(m[1])
