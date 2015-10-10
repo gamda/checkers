@@ -142,26 +142,26 @@ class TestModel(unittest.TestCase):
 
     def test_available_moves_white(self):
         modelMoves = self.model.availableMoves()
-        correctMoves = set([(Coordinate.a3,Coordinate.b4),
-                            (Coordinate.c3,Coordinate.b4),
-                            (Coordinate.c3,Coordinate.d4),
-                            (Coordinate.e3,Coordinate.d4),
-                            (Coordinate.e3,Coordinate.f4),
-                            (Coordinate.g3,Coordinate.f4),
-                            (Coordinate.g3,Coordinate.h4)])
-        self.assertEqual(modelMoves, correctMoves)
+        answer = set([(Coordinate.a3,Coordinate.b4),
+                      (Coordinate.c3,Coordinate.b4),
+                      (Coordinate.c3,Coordinate.d4),
+                      (Coordinate.e3,Coordinate.d4),
+                      (Coordinate.e3,Coordinate.f4),
+                      (Coordinate.g3,Coordinate.f4),
+                      (Coordinate.g3,Coordinate.h4)])
+        self.assertEqual(modelMoves, answer)
 
     def test_available_moves_black(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         modelMoves = self.model.availableMoves()
-        correctMoves = set([(Coordinate.b6,Coordinate.a5),
-                            (Coordinate.b6,Coordinate.c5),
-                            (Coordinate.d6,Coordinate.c5),
-                            (Coordinate.d6,Coordinate.e5),
-                            (Coordinate.f6,Coordinate.e5),
-                            (Coordinate.f6,Coordinate.g5),
-                            (Coordinate.h6,Coordinate.g5)])
-        self.assertEqual(modelMoves, correctMoves)
+        answer = set([(Coordinate.b6,Coordinate.a5),
+                      (Coordinate.b6,Coordinate.c5),
+                      (Coordinate.d6,Coordinate.c5),
+                      (Coordinate.d6,Coordinate.e5),
+                      (Coordinate.f6,Coordinate.e5),
+                      (Coordinate.f6,Coordinate.g5),
+                      (Coordinate.h6,Coordinate.g5)])
+        self.assertEqual(modelMoves, answer)
 
     def test_available_moves_white_one_jump(self):
         self.model.move(Coordinate.g3, Coordinate.f4)
@@ -176,6 +176,29 @@ class TestModel(unittest.TestCase):
         self.model.move(Coordinate.a3, Coordinate.b4)
         moves = self.model.availableMoves()
         answer = set([(Coordinate.e5, Coordinate.c3)])
+        self.assertEqual(moves, answer)
+
+    def test_available_moves_white_two_jumps(self):
+        self.model.move(Coordinate.e3, Coordinate.f4)
+        self.model.move(Coordinate.f6, Coordinate.e5)
+        self.model.move(Coordinate.d2, Coordinate.e3)
+        self.model.move(Coordinate.e5, Coordinate.d4)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.c3, Coordinate.e5),
+                      (Coordinate.e3, Coordinate.c5)])
+        self.assertEqual(moves, answer)
+
+    def test_available_moves_black_two_jumps(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.c5)
+        self.model.move(Coordinate.g3, Coordinate.h4)
+        self.model.move(Coordinate.c7, Coordinate.d6)
+        self.model.move(Coordinate.f2, Coordinate.g3)
+        self.model.move(Coordinate.d6, Coordinate.e5)
+        self.model.move(Coordinate.e3, Coordinate.f4)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.c5, Coordinate.e3),
+                      (Coordinate.e5, Coordinate.c3)])
         self.assertEqual(moves, answer)
 
     def test_move_raises_TypeError(self):

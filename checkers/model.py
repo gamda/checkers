@@ -145,13 +145,13 @@ class Model:
         canJump = False
         for coord, chip in self.chips.items(): 
             if chip.type == Chip.Type.soldier:
-                # moves = moves | self.chipAvailableMoves(coord)[0]
                 newMoves, newCanJump = self.chipAvailableMoves(coord)
-                if (not canJump and not newCanJump): 
+                if canJump == newCanJump: 
                     moves = moves | newMoves
                 elif not canJump and newCanJump: # found a jump, delete old moves
                     moves = newMoves
                     canJump = True
+                # else found regular move, but jump found previously
         return moves
 
     def move(self, origin, destination):
