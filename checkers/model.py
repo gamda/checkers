@@ -152,13 +152,38 @@ class Model:
             raise TypeError("destination must be from Direction enum")
         if not (origin, destination) in self.availableMoves():
             return False
+
         self.board.move(origin, destination)
         self.chips[destination] = self.chips[origin]
         del self.chips[origin]
         self.turn = Chip.Color.black \
                     if self.turn == Chip.Color.white \
                     else Chip.Color.white
+
+        distance = destination - origin
+        if abs(distance) != 7 and abs(distance) != 9:
+            self._removeChips(origin, destination)
         return True
+
+    def _removeChips(self, origin, destination):
+        distance = destination - origin
+        direction = None
+        # jump, find and remove chip
+        if distance < 0: # moved left
+            if distance % 7 == 0: # moved top
+                direction = Direction.topLeft
+            else: # distance % 9 == 0, moved btm
+                direction = Direction.btmLeft
+        else: # moved right
+            if distance % 9 == 0:
+                direction = Direction.topRight
+            else:
+                direction = Direction.btmRight
+        squaresJumped = self.board.pathInDirection(origin, destination, direction)
+        for s in squaresJumped:
+            if self.board.getContent(s) != None:
+                self.board.clearSquare(s)
+                del self.chips[s]
 
     def squareHasAllyChip(self, square):
         """Returns True if the chip belongs to the team whose turn it is, False otherwise

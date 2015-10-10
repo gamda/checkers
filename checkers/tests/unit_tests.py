@@ -196,6 +196,31 @@ class TestModel(unittest.TestCase):
     def test_square_has_ally_chip_ally(self):
         self.assertTrue(self.model.squareHasAllyChip(Coordinate.a3))
 
+    def test_jump_removes_chip_white_turn(self):
+        self.model.move(Coordinate.g3, Coordinate.f4)
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        eater = self.model.chips[Coordinate.f4]
+        move = self.model.move(Coordinate.f4, Coordinate.h6)
+        self.assertTrue(move)
+        self.assertIs(eater, self.model.board.getContent(Coordinate.h6))
+        self.assertIn(Coordinate.h6, self.model.chips.keys())
+        self.assertIs(eater, self.model.chips[Coordinate.h6])
+        self.assertIsNone(self.model.board.getContent(Coordinate.g5))
+        self.assertNotIn(Coordinate.g5, self.model.chips.keys())
+
+    def test_jump_removes_chip_black_turn(self):
+        self.model.move(Coordinate.c3, Coordinate.b4)
+        self.model.move(Coordinate.b6, Coordinate.a5)
+        self.model.move(Coordinate.e3, Coordinate.d4)
+        eater = self.model.chips[Coordinate.a5]
+        move = self.model.move(Coordinate.a5, Coordinate.c3)
+        self.assertTrue(move)
+        self.assertIs(eater, self.model.board.getContent(Coordinate.c3))
+        self.assertIn(Coordinate.c3, self.model.chips.keys())
+        self.assertIs(eater, self.model.chips[Coordinate.c3])
+        self.assertIsNone(self.model.board.getContent(Coordinate.b4))
+        self.assertNotIn(Coordinate.b4, self.model.chips.keys())
+
 
 if __name__ == '__main__':
     unittest.main()
