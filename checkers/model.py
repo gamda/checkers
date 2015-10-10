@@ -97,7 +97,6 @@ class Model:
         canJump = False
         for direction in directions:
             neighbor = self._neighborContentInDirection(square, direction)
-            print(neighbor)
             if neighbor is False: # outside the board
                 pass 
             elif neighbor["content"] is None: # empty square, valid move

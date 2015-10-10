@@ -3,18 +3,10 @@ import pygame.locals
 from model import Model, Chip
 from gameboard.coordinate import Coordinate
 
-######### SAMPLE BOARD ###########
-##
-##   initial state
-##
-##  x _ x _ x _ x _
-##  _ x _ x _ x _ x
-##  x _ x _ x _ x _ 
-##  _ e _ e _ e _ e 
-##  e _ e _ e _ e _
-##  _ o _ o _ o _ o
-##  o _ o _ o _ o _
-##  _ o _ o _ o _ o
+pygame.init()
+# set up fonts
+basicFont = pygame.font.SysFont(None, 48)
+infoFont = pygame.font.SysFont(None,20)
 
 # window size
 WINDOW_WIDTH = 800
@@ -35,6 +27,13 @@ highlight = 255, 215, 0
 blackChip = 0, 0, 0
 whiteChip = 255, 0, 0
 
+btnPanel = pygame.Rect(WINDOW_HEIGHT,0,
+                       WINDOW_WIDTH-WINDOW_HEIGHT,WINDOW_HEIGHT)
+txtReset = basicFont.render( "Reset", True, (0,0,0), board )
+btnReset = txtReset.get_rect()
+btnReset.centerx = btnPanel.centerx
+btnReset.top = WINDOW_HEIGHT // 2
+
 # generate squares for the board
 drawX, drawY = MARGIN - SQR_WIDTH, WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
 
@@ -53,8 +52,7 @@ moveDestinations = set()
 chipSelected = False
 
 def main( ):
-    drawSquares()
-    drawChips()
+    drawScreen()
     while 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -65,9 +63,13 @@ def main( ):
                 handleClick(event.pos)
 
 def handleClick(position):
-    global chipSelected, chosenChip
+    global model, chipSelected, chosenChip
     square, chipJustSelected = findSquareClicked(position)
-    if chipSelected and square in moveDestinations:
+    if square is None:
+        # Check buttons, for now just reset
+        model = Model()
+        drawScreen()
+    elif chipSelected and square in moveDestinations:
         move(chosenChip, square)
         chosenChip = None
         chipSelected = False
@@ -90,25 +92,33 @@ def findSquareClicked(pos):
     for k, s in squareRects.items():
         if s.collidepoint(pos):
             square = k
-    return (square, model.squareHasAllyChip(square))
+    return (square, model.squareHasAllyChip(square)) if not square is None \
+            else (None, False)
+
+def drawScreen():
+    drawSquares()
+    drawChips()
+    drawButtons()
+    pygame.display.flip()
 
 def drawSquares():
     screen.fill(board)
     for i in Coordinate:
         color = whiteOrBlackSquare(i)
         pygame.draw.rect(screen, color, squareRects[i])
-    pygame.display.flip()
 
 def drawChips():
     for coord in model.chips.keys():
         drawChip(coord)
-    pygame.display.flip()
 
 def drawChip(coord):
     chip = model.chips[coord]
     center = squareRects[coord].center
     color = whiteChip if chip.color == Chip.Color.white else blackChip
     pygame.draw.circle(screen, color, center, 25)
+
+def drawButtons():
+    screen.blit(txtReset, btnReset)
 
 def highlightSquares(coord):
     global moveDestinations
