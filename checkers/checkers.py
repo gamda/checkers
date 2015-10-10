@@ -155,20 +155,16 @@ def unhighlightOneSquare(coord):
     pygame.display.flip()
 
 def whiteOrBlackSquare(coord):
-    for i in range(8):
-        for j in range(8):
-            index = i * 8 + j
-            if Coordinate(index) == coord:
-                if i % 2 : #odd row, start with light square
-                    if j % 2 : #odd square, make it dark
-                        return blackSquare
-                    else: #even square make it light
-                        return whiteSquare
-                else: #even row, start with dark square
-                    if j % 2 : #odd square, make it light
-                        return whiteSquare
-                    else:# make it dark
-                        return blackSquare
+    evenLetter = (coord // 8) % 2 == 1 # b, d, f, h are even letters
+    evenSquare = coord % 2 == 1 # even squares have odd values
+    if evenLetter and evenSquare:
+        return blackSquare
+    elif evenLetter and not evenSquare:
+        return whiteSquare
+    elif not evenLetter and evenSquare:
+        return whiteSquare
+    else: # not evenLetter and not evenSquare
+        return blackSquare
 
 if __name__ == '__main__':
     main()
