@@ -94,16 +94,23 @@ class Model:
         directions = whiteDirections if color == Chip.Color.white else blackDirections
 
         moves = set()
+        canJump = False
         for direction in directions:
             neighbor = self._neighborContentInDirection(square, direction)
+            print(neighbor)
             if neighbor is False: # outside the board
                 pass 
             elif neighbor["content"] is None: # empty square, valid move
-                moves.add((square, neighbor["coordinate"]))
+                if not canJump:
+                    moves.add((square, neighbor["coordinate"]))
             elif neighbor["content"].color != color: # Check next square for jump
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor and nextNeighbor["content"] is None:
-                    moves.add((square, nextNeighbor["coordinate"]))
+                    if canJump:
+                        moves.add((square, nextNeighbor["coordinate"]))
+                    else: # first jump move found, delete previous moves
+                        canJump = True
+                        moves = set([(square, nextNeighbor["coordinate"])])
         return moves
 
     def chipAvailableMoves(self, square):

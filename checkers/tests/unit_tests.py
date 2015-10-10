@@ -94,7 +94,7 @@ class TestModel(unittest.TestCase):
         self.assertEqual(moves, answer)
         # Empty square, no moves
         moves = self.model.chipAvailableMoves(Coordinate.c6)
-        self.assertEqual(moves, answer)
+        self.assertEqual(moves, answer)     
 
     def test_chip_available_moves_black_turn(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
@@ -113,6 +113,21 @@ class TestModel(unittest.TestCase):
         self.assertEqual(moves, answer)
         # Empty square, no moves
         moves = self.model.chipAvailableMoves(Coordinate.c6)
+        self.assertEqual(moves, answer)
+
+    def test_chip_available_moves_white_one_jump(self):
+        self.model.move(Coordinate.g3, Coordinate.f4)
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        moves = self.model.chipAvailableMoves(Coordinate.f4)
+        answer = set([(Coordinate.f4, Coordinate.h6)])
+        self.assertEqual(moves, answer)
+
+    def test_chip_available_moves_black_one_jump(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.e5)
+        self.model.move(Coordinate.a3, Coordinate.b4)
+        moves = self.model.chipAvailableMoves(Coordinate.e5)
+        answer = set([(Coordinate.e5, Coordinate.c3)])
         self.assertEqual(moves, answer)
 
     def test_available_moves_white(self):
@@ -155,6 +170,16 @@ class TestModel(unittest.TestCase):
         self.assertIs(chip, self.model.chips[Coordinate.a3])
         self.assertEqual(len(removed),0)
 
+    def test_move_black_invalid(self):
+        self.model.move(Coordinate.a3,Coordinate.b4)
+        chip = self.model.board.getContent(Coordinate.h6)
+        move, removed = self.model.move(Coordinate.h6, Coordinate.g4)
+        self.assertEqual(move, self.model.MoveType.invalid)
+        self.assertIs(chip, self.model.board.getContent(Coordinate.h6))
+        self.assertNotIn(Coordinate.g4, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.h6])
+        self.assertEqual(len(removed),0)
+
     def test_move_white_valid_no_jump(self):
         chip = self.model.board.getContent(Coordinate.a3)
         move, removed = self.model.move(Coordinate.a3,Coordinate.b4)
@@ -164,6 +189,18 @@ class TestModel(unittest.TestCase):
         self.assertIn(Coordinate.b4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.b4])
         self.assertEqual(self.model.turn, Chip.Color.black)
+        self.assertEqual(len(removed),0)
+
+    def test_move_black_valid_no_jump(self):
+        self.model.move(Coordinate.a3,Coordinate.b4)
+        chip = self.model.board.getContent(Coordinate.h6)
+        move, removed = self.model.move(Coordinate.h6, Coordinate.g5)
+        self.assertIs(self.model.board.getContent(Coordinate.h6), None)
+        self.assertEqual(move, self.model.MoveType.soldierMove)
+        self.assertIs(self.model.board.getContent(Coordinate.g5), chip)
+        self.assertIn(Coordinate.g5, self.model.chips.keys())
+        self.assertIs(chip, self.model.chips[Coordinate.g5])
+        self.assertIs(self.model.turn, Chip.Color.white)
         self.assertEqual(len(removed),0)
 
     def test_move_white_valid_jump(self):
@@ -178,28 +215,6 @@ class TestModel(unittest.TestCase):
         self.assertIsNone(self.model.board.getContent(Coordinate.g5))
         self.assertNotIn(Coordinate.g5, self.model.chips.keys())
         self.assertEqual(removed, [Coordinate.g5])
-
-    def test_move_black_invalid(self):
-        self.model.move(Coordinate.a3,Coordinate.b4)
-        chip = self.model.board.getContent(Coordinate.h6)
-        move, removed = self.model.move(Coordinate.h6, Coordinate.g4)
-        self.assertEqual(move, self.model.MoveType.invalid)
-        self.assertIs(chip, self.model.board.getContent(Coordinate.h6))
-        self.assertNotIn(Coordinate.g4, self.model.chips.keys())
-        self.assertIs(chip, self.model.chips[Coordinate.h6])
-        self.assertEqual(len(removed),0)
-
-    def test_move_black_valid_no_jump(self):
-        self.model.move(Coordinate.a3,Coordinate.b4)
-        chip = self.model.board.getContent(Coordinate.h6)
-        move, removed = self.model.move(Coordinate.h6, Coordinate.g5)
-        self.assertIs(self.model.board.getContent(Coordinate.h6), None)
-        self.assertEqual(move, self.model.MoveType.soldierMove)
-        self.assertIs(self.model.board.getContent(Coordinate.g5), chip)
-        self.assertIn(Coordinate.g5, self.model.chips.keys())
-        self.assertIs(chip, self.model.chips[Coordinate.g5])
-        self.assertIs(self.model.turn, Chip.Color.white)
-        self.assertEqual(len(removed),0)
 
     def test_move_black_valid_jump(self):
         self.model.move(Coordinate.c3, Coordinate.b4)
