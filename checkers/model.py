@@ -74,29 +74,38 @@ class Model:
                         "content": self.board.getContent(newNeighbor)}
         return False
 
-    def _soldierChipAvailableMoves(self, color, square):
-        whiteDirections = [Direction.topLeft, Direction.topRight]
-        blackDirections = [Direction.btmLeft, Direction.btmRight]
-        directions = whiteDirections if color == Chip.Color.white else blackDirections
+    def _soldierAvailableJumps(self, color, square, directions):
+        jumps = set()
+        for direction in directions:
+            # neighbor = self._neighborContentInDirection(square, direction)
+            # if not neighbor is False and\
+            #     not neighbor["content"] is None and \
+            #         neighbor["content"].color != color:
+            nextNeighbor = self._nextNeighborContentInSquare(square, direction)
+            if nextNeighbor and nextNeighbor["content"] is None:
+                jumps.add((square, nextNeighbor["coordinate"]))
+        return jumps
 
+    def _soldierAvailableRegularMoves(self, square, directions):
         moves = set()
-        canJump = False
         for direction in directions:
             neighbor = self._neighborContentInDirection(square, direction)
             if neighbor is False: # outside the board
                 pass 
             elif neighbor["content"] is None: # empty square, valid move
-                if not canJump:
-                    moves.add((square, neighbor["coordinate"]))
-            elif neighbor["content"].color != color: # Check next square for jump
-                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor and nextNeighbor["content"] is None:
-                    if canJump:
-                        moves.add((square, nextNeighbor["coordinate"]))
-                    else: # first jump move found, delete previous moves
-                        canJump = True
-                        moves = set([(square, nextNeighbor["coordinate"])])
-        return moves, canJump
+                moves.add((square, neighbor["coordinate"]))
+        return moves
+
+    def _soldierChipAvailableMoves(self, color, square):
+        whiteDirections = [Direction.topLeft, Direction.topRight]
+        blackDirections = [Direction.btmLeft, Direction.btmRight]
+        directions = whiteDirections if color == Chip.Color.white else blackDirections
+
+        moves = self._soldierAvailableJumps(color, square, directions)
+        if len(moves) > 0:
+            return moves, True
+
+        return self._soldierAvailableRegularMoves(square, directions), False
 
     def chipAvailableMoves(self, square):
         """Returns a tuple (list[availableMoves], bool canJump)
