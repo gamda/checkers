@@ -80,55 +80,65 @@ class TestModel(unittest.TestCase):
 
     def test_chip_available_moves_white_turn(self):
         # White chip with one move
-        moves = self.model.chipAvailableMoves(Coordinate.a3)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.a3)
         answer = set([(Coordinate.a3,Coordinate.b4)])
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # White chip with two moves
-        moves = self.model.chipAvailableMoves(Coordinate.c3)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.c3)
         answer = set([(Coordinate.c3,Coordinate.b4),
                         (Coordinate.c3,Coordinate.d4)])
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # Black chip, no moves
-        moves = self.model.chipAvailableMoves(Coordinate.b6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.b6)
         answer = set()
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # Empty square, no moves
-        moves = self.model.chipAvailableMoves(Coordinate.c6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.c6)
         self.assertEqual(moves, answer)     
+        self.assertFalse(canJump)
 
     def test_chip_available_moves_black_turn(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         # Black chip with one move
-        moves = self.model.chipAvailableMoves(Coordinate.h6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.h6)
         answer = set([(Coordinate.h6,Coordinate.g5)])
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # Black chip with two moves
-        moves = self.model.chipAvailableMoves(Coordinate.d6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d6)
         answer = set([(Coordinate.d6,Coordinate.c5),
                         (Coordinate.d6,Coordinate.e5)])
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # White chip, no moves
-        moves = self.model.chipAvailableMoves(Coordinate.b4)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.b4)
         answer = set()
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
         # Empty square, no moves
-        moves = self.model.chipAvailableMoves(Coordinate.c6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.c6)
         self.assertEqual(moves, answer)
+        self.assertFalse(canJump)
 
     def test_chip_available_moves_white_one_jump(self):
         self.model.move(Coordinate.g3, Coordinate.f4)
         self.model.move(Coordinate.h6, Coordinate.g5)
-        moves = self.model.chipAvailableMoves(Coordinate.f4)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.f4)
         answer = set([(Coordinate.f4, Coordinate.h6)])
         self.assertEqual(moves, answer)
+        self.assertTrue(canJump)
 
     def test_chip_available_moves_black_one_jump(self):
         self.model.move(Coordinate.c3, Coordinate.d4)
         self.model.move(Coordinate.d6, Coordinate.e5)
         self.model.move(Coordinate.a3, Coordinate.b4)
-        moves = self.model.chipAvailableMoves(Coordinate.e5)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.e5)
         answer = set([(Coordinate.e5, Coordinate.c3)])
         self.assertEqual(moves, answer)
+        self.assertTrue(canJump)
 
     def test_available_moves_white(self):
         modelMoves = self.model.availableMoves()
@@ -152,6 +162,21 @@ class TestModel(unittest.TestCase):
                             (Coordinate.f6,Coordinate.g5),
                             (Coordinate.h6,Coordinate.g5)])
         self.assertEqual(modelMoves, correctMoves)
+
+    def test_available_moves_white_one_jump(self):
+        self.model.move(Coordinate.g3, Coordinate.f4)
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.f4, Coordinate.h6)])
+        self.assertEqual(moves, answer)
+
+    def test_available_moves_black_one_jump(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.e5)
+        self.model.move(Coordinate.a3, Coordinate.b4)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.e5, Coordinate.c3)])
+        self.assertEqual(moves, answer)
 
     def test_move_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.move,

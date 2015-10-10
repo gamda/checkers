@@ -75,20 +75,6 @@ class Model:
         return False
 
     def _soldierChipAvailableMoves(self, color, square):
-        """Returns a list with tuples of Coordinate values of available moves for the chip
-
-        This function is meant to be called by _chipAvailableMoves, which already
-        checked that the chip exists in both the chips and board.squares dictionaries.
-        For this reason, it doesn't check to see if square is a Coordinate, the check
-        already happened in the previous function.
-
-        Args:
-            square (Coordinate): the square where the chip is/should be
-        Returns:
-            list: tuple of Coordinate values of valid moves for the chip. They have
-            the form (Coordinate.origin, Coordinate.destination)
-
-        """
         whiteDirections = [Direction.topLeft, Direction.topRight]
         blackDirections = [Direction.btmLeft, Direction.btmRight]
         directions = whiteDirections if color == Chip.Color.white else blackDirections
@@ -110,20 +96,37 @@ class Model:
                     else: # first jump move found, delete previous moves
                         canJump = True
                         moves = set([(square, nextNeighbor["coordinate"])])
-        return moves
+        return moves, canJump
 
     def chipAvailableMoves(self, square):
+        """Returns a tuple (list[availableMoves], bool canJump)
+
+        This function is meant to be called by _chipAvailableMoves, which already
+        checked that the chip exists in both the chips and board.squares dictionaries.
+        For this reason, it doesn't check to see if square is a Coordinate, the check
+        already happened in the previous function.
+
+        Args:
+            square (Coordinate): the square where the chip is/should be
+        Returns:
+            list: tuple of Coordinate values of valid moves for the chip. They have
+            the form (Coordinate.origin, Coordinate.destination)
+            bool: True if the chip can jump, False otherwise
+
+        """
         if square not in self.chips.keys() or self.board.getContent(square) is None:
             # chip is not in the game anymore
-            return set()
+            return set(), False
         chip = self.chips[square]
         if chip.color != self.turn:
-            return set()
+            return set(), False
         if chip.type == Chip.Type.soldier:
             if chip.color == Chip.Color.white:
                 return self._soldierChipAvailableMoves(Chip.Color.white, square)
             else: # chip.color = black
                 return self._soldierChipAvailableMoves(Chip.Color.black, square)
+
+    # def _availableMoves(self, color):
 
     def availableMoves(self):
         """Returns a set with tuples of Coordinate values of all available moves
@@ -139,12 +142,16 @@ class Model:
 
         """
         moves = set()
-        if self.turn == Chip.Color.white:
-            for coord, chip in self.chips.items(): # soldiers
-                moves = moves | self.chipAvailableMoves(coord)
-        else: # self.turn = black
-            for coord, chip in self.chips.items(): # soldiers
-                moves = moves | self.chipAvailableMoves(coord)
+        canJump = False
+        for coord, chip in self.chips.items(): 
+            if chip.type == Chip.Type.soldier:
+                # moves = moves | self.chipAvailableMoves(coord)[0]
+                newMoves, newCanJump = self.chipAvailableMoves(coord)
+                if (not canJump and not newCanJump): 
+                    moves = moves | newMoves
+                elif not canJump and newCanJump: # found a jump, delete old moves
+                    moves = newMoves
+                    canJump = True
         return moves
 
     def move(self, origin, destination):
