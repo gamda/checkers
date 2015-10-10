@@ -77,7 +77,6 @@ def handleClick(position):
         chipSelected = chipJustSelected
 
 def move(origin, destination):
-    print(origin, destination)
     model.move(origin, destination)
     unghighlightSquares()
 
@@ -96,11 +95,15 @@ def drawSquares():
     pygame.display.flip()
 
 def drawChips():
-    for k, c in model.chips.items():
-        center = squareRects[k].center
-        color = whiteChip if c.color == Chip.Color.white else blackChip
-        pygame.draw.circle(screen, color, center, 25)
+    for coord in model.chips.keys():
+        drawChip(coord)
     pygame.display.flip()
+
+def drawChip(coord):
+    chip = model.chips[coord]
+    center = squareRects[coord].center
+    color = whiteChip if chip.color == Chip.Color.white else blackChip
+    pygame.draw.circle(screen, color, center, 25)
 
 def highlightSquares(coord):
     global moveDestinations
@@ -128,9 +131,7 @@ def highlightOneSquare(coord):
     pygame.draw.rect(screen, sqrColor, highlightedRect)
 
     if coord in model.chips.keys():
-        center = squareRects[coord].center
-        color = whiteChip if model.chips[coord].color == Chip.Color.white else blackChip
-        pygame.draw.circle(screen, color, center, 25)
+        drawChip(coord)
     pygame.display.flip()
 
 def unghighlightSquares():
@@ -145,9 +146,7 @@ def unhighlightOneSquare(coord):
     
     # Redraw chip if there is one
     if coord in model.chips.keys():
-        center = squareRects[coord].center
-        color = whiteChip if model.chips[coord].color == Chip.Color.white else blackChip
-        pygame.draw.circle(screen, color, center, 25)
+        drawChip(coord)
     pygame.display.flip()
 
 def whiteOrBlackSquare(coord):
