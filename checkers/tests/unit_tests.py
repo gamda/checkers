@@ -80,39 +80,39 @@ class TestModel(unittest.TestCase):
 
     def test_chip_available_moves_white_turn(self):
         # White chip with one move
-        moves = self.model._chipAvailableMoves(Coordinate.a3)
+        moves = self.model.chipAvailableMoves(Coordinate.a3)
         answer = set([(Coordinate.a3,Coordinate.b4)])
         self.assertEqual(moves, answer)
         # White chip with two moves
-        moves = self.model._chipAvailableMoves(Coordinate.c3)
+        moves = self.model.chipAvailableMoves(Coordinate.c3)
         answer = set([(Coordinate.c3,Coordinate.b4),
                         (Coordinate.c3,Coordinate.d4)])
         self.assertEqual(moves, answer)
         # Black chip, no moves
-        moves = self.model._chipAvailableMoves(Coordinate.b6)
+        moves = self.model.chipAvailableMoves(Coordinate.b6)
         answer = set()
         self.assertEqual(moves, answer)
         # Empty square, no moves
-        moves = self.model._chipAvailableMoves(Coordinate.c6)
+        moves = self.model.chipAvailableMoves(Coordinate.c6)
         self.assertEqual(moves, answer)
 
     def test_chip_available_moves_black_turn(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         # Black chip with one move
-        moves = self.model._chipAvailableMoves(Coordinate.h6)
+        moves = self.model.chipAvailableMoves(Coordinate.h6)
         answer = set([(Coordinate.h6,Coordinate.g5)])
         self.assertEqual(moves, answer)
         # Black chip with two moves
-        moves = self.model._chipAvailableMoves(Coordinate.d6)
+        moves = self.model.chipAvailableMoves(Coordinate.d6)
         answer = set([(Coordinate.d6,Coordinate.c5),
                         (Coordinate.d6,Coordinate.e5)])
         self.assertEqual(moves, answer)
         # White chip, no moves
-        moves = self.model._chipAvailableMoves(Coordinate.b4)
+        moves = self.model.chipAvailableMoves(Coordinate.b4)
         answer = set()
         self.assertEqual(moves, answer)
         # Empty square, no moves
-        moves = self.model._chipAvailableMoves(Coordinate.c6)
+        moves = self.model.chipAvailableMoves(Coordinate.c6)
         self.assertEqual(moves, answer)
 
     def test_available_moves_white(self):

@@ -96,11 +96,11 @@ class Model:
                 moves.add((square, neighbor["coordinate"]))
             elif neighbor["content"].color != color: # Check next square for jump
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor["content"] is None:
+                if nextNeighbor and nextNeighbor["content"] is None:
                     moves.add((square, nextNeighbor["coordinate"]))
         return moves
 
-    def _chipAvailableMoves(self, square):
+    def chipAvailableMoves(self, square):
         if square not in self.chips.keys() or self.board.getContent(square) is None:
             # chip is not in the game anymore
             return set()
@@ -114,7 +114,7 @@ class Model:
                 return self._soldierChipAvailableMoves(Chip.Color.black, square)
 
     def availableMoves(self):
-        """Returns a list with tuples of Coordinate values of all available moves
+        """Returns a set with tuples of Coordinate values of all available moves
 
         This function is meant to be called by _chipAvailableMoves, which already
         checked that the chip exists in both the chips and board.squares dictionaries.
@@ -122,17 +122,17 @@ class Model:
         already happened in the previous function.
 
         Returns:
-            list: tuple of Coordinate values of valid moves for the chip. They have
+            set: tuple of Coordinate values of valid moves for the chip. They have
             the form (Coordinate.origin, Coordinate.destination)
 
         """
         moves = set()
         if self.turn == Chip.Color.white:
             for coord, chip in self.chips.items(): # soldiers
-                moves = moves | self._chipAvailableMoves(coord)
+                moves = moves | self.chipAvailableMoves(coord)
         else: # self.turn = black
             for coord, chip in self.chips.items(): # soldiers
-                moves = moves | self._chipAvailableMoves(coord)
+                moves = moves | self.chipAvailableMoves(coord)
         return moves
 
     def move(self, origin, destination):
@@ -161,6 +161,15 @@ class Model:
         return True
 
     def squareHasAllyChip(self, square):
+        """Returns True if the chip belongs to the team whose turn it is, False otherwise
+
+        Args:
+            square (Coordinate): the square to check for an ally chip
+        Returns:
+            Boolean: True if the chip belongs to the team whose turn it is, False otherwise
+        Raises:
+            TypeError: if square is not Coordinate
+        """
         if not isinstance(square, Coordinate):
             raise TypeError("square variable must be from Coordinate enum")
         # Python's lazy evaluation makes sure this expression will never

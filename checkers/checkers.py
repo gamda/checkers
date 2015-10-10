@@ -28,7 +28,7 @@ screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),0,32)
 pygame.display.set_caption( 'Checkers!' )
 
 board = 147, 75, 0
-blackSquare = 221, 164, 72
+blackSquare = 211, 154, 62
 whiteSquare = 234, 249, 217
 highlight = 255, 215, 0
 
@@ -48,6 +48,9 @@ for i in range(64):
 highlightedSquares = []
 
 model = Model()
+chosenChip = None
+moveDestinations = set()
+chipSelected = False
 
 def main( ):
     drawSquares()
@@ -59,14 +62,31 @@ def main( ):
             if event.type == pygame.MOUSEBUTTONUP:
                 # a click happened
                 #-----------------
-                square = findSquareClicked(event.pos)
-                highlightSquares(square)
+                handleClick(event.pos)
+
+def handleClick(position):
+    global chipSelected, chosenChip
+    square, chipJustSelected = findSquareClicked(position)
+    if chipSelected and square in moveDestinations:
+        move(chosenChip, square)
+        chosenChip = None
+        chipSelected = False
+    else:
+        highlightSquares(square)
+        chosenChip = square
+        chipSelected = chipJustSelected
+
+def move(origin, destination):
+    print(origin, destination)
+    model.move(origin, destination)
+    unghighlightSquares()
 
 def findSquareClicked(pos):
+    square = None
     for k, s in squareRects.items():
         if s.collidepoint(pos):
-            return k
-    return None
+            square = k
+    return (square, model.squareHasAllyChip(square))
 
 def drawSquares():
     screen.fill(board)
@@ -83,16 +103,16 @@ def drawChips():
     pygame.display.flip()
 
 def highlightSquares(coord):
-    for s in highlightedSquares: # clear previous highlighted
-        unhighlightSquare(s)
-
+    global moveDestinations
+    unghighlightSquares()
     if coord in model.chips.keys() and \
             model.turn == model.chips[coord].color: # only highlight if there's a chip
         toHighlight = [coord]
-        moves = model._chipAvailableMoves(coord) # (origin, destination)
+        moves = model.chipAvailableMoves(coord) # (origin, destination)
         # if len(moves) > 0: # only highlight if there are available moves
         for m in moves:
             toHighlight.append(m[1])
+            moveDestinations.add(m[1])
         for s in toHighlight:
             highlightOneSquare(s)
 
@@ -113,12 +133,17 @@ def highlightOneSquare(coord):
         pygame.draw.circle(screen, color, center, 25)
     pygame.display.flip()
 
-def unhighlightSquare(coord):
+def unghighlightSquares():
+    for s in highlightedSquares:
+        unhighlightOneSquare(s)
+
+def unhighlightOneSquare(coord):
     global highlightedSquares
     highlightedSquares = highlightedSquares[1:]
     color = whiteOrBlackSquare(coord)
     pygame.draw.rect(screen,color, squareRects[coord])
     
+    # Redraw chip if there is one
     if coord in model.chips.keys():
         center = squareRects[coord].center
         color = whiteChip if model.chips[coord].color == Chip.Color.white else blackChip
