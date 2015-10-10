@@ -77,13 +77,13 @@ class Model:
     def _soldierAvailableJumps(self, color, square, directions):
         jumps = set()
         for direction in directions:
-            # neighbor = self._neighborContentInDirection(square, direction)
-            # if not neighbor is False and\
-            #     not neighbor["content"] is None and \
-            #         neighbor["content"].color != color:
-            nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-            if nextNeighbor and nextNeighbor["content"] is None:
-                jumps.add((square, nextNeighbor["coordinate"]))
+            neighbor = self._neighborContentInDirection(square, direction)
+            if not neighbor is False and\
+                not neighbor["content"] is None and \
+                    neighbor["content"].color != color:
+                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
+                if nextNeighbor and nextNeighbor["content"] is None:
+                    jumps.add((square, nextNeighbor["coordinate"]))
         return jumps
 
     def _soldierAvailableRegularMoves(self, square, directions):
