@@ -21,6 +21,12 @@ class Chip:
         self.type = self.Type.queen
 
 class Model:
+    class MoveType(Enum):
+        invalid = -1
+        soldierMove = 0
+        soldierJump = 1
+        queenMove = 2
+        queenJump = 3
     
     def __init__(self):
         self.board = Gameboard()
@@ -136,39 +142,65 @@ class Model:
         return moves
 
     def move(self, origin, destination):
-        """Returns a boolean. True if the move is successful, False if invalid
+        """Performs the requested move and returns a tuple (MoveType, list)
 
         Args:
             origin (Coordinate): the square where the chip is currently
             destination (Direction): the square where the chip will end
         Returns:
-            Boolean: True if move is successful, False otherwise
+            tuple: (MoveType, list)
+                MoveType: value from enum
+                list: Coordinate values indicating the chips removed
         Raises:
-            TypeError: if square is not Coordinate or if direction is not Direction
+            TypeError: if origin or destination is not Coordinate
         """
         if not isinstance(origin, Coordinate):
             raise TypeError("origin variable must be from Coordinate enum")
         if not isinstance(destination, Coordinate):
-            raise TypeError("destination must be from Direction enum")
+            raise TypeError("destination must be from Coordinate enum")
         if not (origin, destination) in self.availableMoves():
-            return False
-
+            return self.MoveType.invalid, []
+        # move chip
         self.board.move(origin, destination)
         self.chips[destination] = self.chips[origin]
         del self.chips[origin]
         self.turn = Chip.Color.black \
                     if self.turn == Chip.Color.white \
                     else Chip.Color.white
-
+        # remove chips if jump occured
         distance = destination - origin
+        removed = []
         if abs(distance) != 7 and abs(distance) != 9:
-            self._removeChips(origin, destination)
-        return True
+            removed = self._removeChips(origin, destination)
+
+        return (self._moveType(destination, removed), removed)
+
+    def _moveType(self, destination, removed):
+        if len(removed) > 0:
+            if self.chips[destination].type == Chip.Type.soldier:
+                return self.MoveType.soldierJump
+            else:
+                return self.MoveType.queenJump
+        else:
+            if self.chips[destination].type == Chip.Type.soldier:
+                return self.MoveType.soldierMove
+            else:
+                return self.MoveType.queenMove
 
     def _removeChips(self, origin, destination):
+        removed = []
+        direction = self._moveDirection(origin, destination)
+        squaresJumped = self.board.pathInDirection(origin, destination, direction)
+        for s in squaresJumped:
+            if self.board.getContent(s) != None:
+                self.board.clearSquare(s)
+                del self.chips[s]
+                removed.append(s)
+        return removed
+
+    def _moveDirection(self, origin, destination):
         distance = destination - origin
         direction = None
-        # jump, find and remove chip
         if distance < 0: # moved left
             if distance % 7 == 0: # moved top
                 direction = Direction.topLeft
@@ -179,11 +211,7 @@ class Model:
                 direction = Direction.topRight
             else:
                 direction = Direction.btmRight
-        squaresJumped = self.board.pathInDirection(origin, destination, direction)
-        for s in squaresJumped:
-            if self.board.getContent(s) != None:
-                self.board.clearSquare(s)
-                del self.chips[s]
+        return direction
 
     def squareHasAllyChip(self, square):
         """Returns True if the chip belongs to the team whose turn it is, False otherwise

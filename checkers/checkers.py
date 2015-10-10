@@ -77,8 +77,13 @@ def handleClick(position):
         chipSelected = chipJustSelected
 
 def move(origin, destination):
-    model.move(origin, destination)
+    move, chips = model.move(origin, destination)
     unghighlightSquares()
+    if len(chips) > 0:
+        for c in chips:
+            color = whiteOrBlackSquare(i)
+            pygame.draw.rect(screen, color, squareRects[c])
+            pygame.display.flip()
 
 def findSquareClicked(pos):
     square = None

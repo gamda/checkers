@@ -148,43 +148,74 @@ class TestModel(unittest.TestCase):
 
     def test_move_white_invalid(self):
         chip = self.model.board.getContent(Coordinate.a3)
-        move = self.model.move(Coordinate.a3, Coordinate.c4)
-        self.assertFalse(move)
+        move, removed = self.model.move(Coordinate.a3, Coordinate.c4)
+        self.assertEqual(move, self.model.MoveType.invalid)
         self.assertIs(chip, self.model.board.getContent(Coordinate.a3))
         self.assertNotIn(Coordinate.c4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.a3])
+        self.assertEqual(len(removed),0)
 
     def test_move_white_valid_no_jump(self):
         chip = self.model.board.getContent(Coordinate.a3)
-        move = self.model.move(Coordinate.a3,Coordinate.b4)
+        move, removed = self.model.move(Coordinate.a3,Coordinate.b4)
         self.assertIs(self.model.board.getContent(Coordinate.a3), None)
-        self.assertTrue(move)
+        self.assertEqual(move, self.model.MoveType.soldierMove)
         self.assertIs(self.model.board.getContent(Coordinate.b4), chip)
         self.assertIn(Coordinate.b4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.b4])
         self.assertEqual(self.model.turn, Chip.Color.black)
+        self.assertEqual(len(removed),0)
+
+    def test_move_white_valid_jump(self):
+        self.model.move(Coordinate.g3, Coordinate.f4)
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        eater = self.model.chips[Coordinate.f4]
+        move, removed = self.model.move(Coordinate.f4, Coordinate.h6)
+        self.assertEqual(move, self.model.MoveType.soldierJump)
+        self.assertIs(eater, self.model.board.getContent(Coordinate.h6))
+        self.assertIn(Coordinate.h6, self.model.chips.keys())
+        self.assertIs(eater, self.model.chips[Coordinate.h6])
+        self.assertIsNone(self.model.board.getContent(Coordinate.g5))
+        self.assertNotIn(Coordinate.g5, self.model.chips.keys())
+        self.assertEqual(removed, [Coordinate.g5])
 
     def test_move_black_invalid(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         chip = self.model.board.getContent(Coordinate.h6)
-        move = self.model.move(Coordinate.h6, Coordinate.g4)
-        self.assertFalse(move)
+        move, removed = self.model.move(Coordinate.h6, Coordinate.g4)
+        self.assertEqual(move, self.model.MoveType.invalid)
         self.assertIs(chip, self.model.board.getContent(Coordinate.h6))
         self.assertNotIn(Coordinate.g4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.h6])
+        self.assertEqual(len(removed),0)
 
     def test_move_black_valid_no_jump(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
         chip = self.model.board.getContent(Coordinate.h6)
-        move = self.model.move(Coordinate.h6, Coordinate.g5)
+        move, removed = self.model.move(Coordinate.h6, Coordinate.g5)
         self.assertIs(self.model.board.getContent(Coordinate.h6), None)
-        self.assertTrue(move)
+        self.assertEqual(move, self.model.MoveType.soldierMove)
         self.assertIs(self.model.board.getContent(Coordinate.g5), chip)
         self.assertIn(Coordinate.g5, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.g5])
         self.assertIs(self.model.turn, Chip.Color.white)
+        self.assertEqual(len(removed),0)
 
-    def test_move_raises_TypeError(self):
+    def test_move_black_valid_jump(self):
+        self.model.move(Coordinate.c3, Coordinate.b4)
+        self.model.move(Coordinate.b6, Coordinate.a5)
+        self.model.move(Coordinate.e3, Coordinate.d4)
+        eater = self.model.chips[Coordinate.a5]
+        move, removed = self.model.move(Coordinate.a5, Coordinate.c3)
+        self.assertEqual(move, self.model.MoveType.soldierJump)
+        self.assertIs(eater, self.model.board.getContent(Coordinate.c3))
+        self.assertIn(Coordinate.c3, self.model.chips.keys())
+        self.assertIs(eater, self.model.chips[Coordinate.c3])
+        self.assertIsNone(self.model.board.getContent(Coordinate.b4))
+        self.assertNotIn(Coordinate.b4, self.model.chips.keys())
+        self.assertEqual(removed, [Coordinate.b4])
+
+    def test_square_has_ally_chip_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")
 
     def test_square_has_ally_chip_empty(self):
@@ -195,31 +226,6 @@ class TestModel(unittest.TestCase):
 
     def test_square_has_ally_chip_ally(self):
         self.assertTrue(self.model.squareHasAllyChip(Coordinate.a3))
-
-    def test_jump_removes_chip_white_turn(self):
-        self.model.move(Coordinate.g3, Coordinate.f4)
-        self.model.move(Coordinate.h6, Coordinate.g5)
-        eater = self.model.chips[Coordinate.f4]
-        move = self.model.move(Coordinate.f4, Coordinate.h6)
-        self.assertTrue(move)
-        self.assertIs(eater, self.model.board.getContent(Coordinate.h6))
-        self.assertIn(Coordinate.h6, self.model.chips.keys())
-        self.assertIs(eater, self.model.chips[Coordinate.h6])
-        self.assertIsNone(self.model.board.getContent(Coordinate.g5))
-        self.assertNotIn(Coordinate.g5, self.model.chips.keys())
-
-    def test_jump_removes_chip_black_turn(self):
-        self.model.move(Coordinate.c3, Coordinate.b4)
-        self.model.move(Coordinate.b6, Coordinate.a5)
-        self.model.move(Coordinate.e3, Coordinate.d4)
-        eater = self.model.chips[Coordinate.a5]
-        move = self.model.move(Coordinate.a5, Coordinate.c3)
-        self.assertTrue(move)
-        self.assertIs(eater, self.model.board.getContent(Coordinate.c3))
-        self.assertIn(Coordinate.c3, self.model.chips.keys())
-        self.assertIs(eater, self.model.chips[Coordinate.c3])
-        self.assertIsNone(self.model.board.getContent(Coordinate.b4))
-        self.assertNotIn(Coordinate.b4, self.model.chips.keys())
 
 
 if __name__ == '__main__':
