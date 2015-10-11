@@ -201,6 +201,46 @@ class TestModel(unittest.TestCase):
                       (Coordinate.e5, Coordinate.c3)])
         self.assertEqual(moves, answer)
 
+    def test_available_moves_white_double_jump(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.c5)
+        self.model.move(Coordinate.b2, Coordinate.c3)
+        self.model.move(Coordinate.c7, Coordinate.d6)
+        self.model.move(Coordinate.c3, Coordinate.b4)
+        self.model.move(Coordinate.d8, Coordinate.c7)
+        self.model.move(Coordinate.d2, Coordinate.c3)
+        self.model.move(Coordinate.f6, Coordinate.e5)
+        # ^ this set of moves can also be used to test crowning
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.d4, Coordinate.f6)])
+        self.assertEqual(moves, answer)
+        self.model.move(Coordinate.d4, Coordinate.f6)
+        self.assertEqual(self.model.turn, Chip.Color.white)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.f6, Coordinate.d8)])
+        self.assertEqual(moves, answer)
+
+    def test_available_moves_white_double_jump_with_other_jump_available(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.c5)
+        self.model.move(Coordinate.b2, Coordinate.c3)
+        self.model.move(Coordinate.c7, Coordinate.d6)
+        self.model.move(Coordinate.c3, Coordinate.b4)
+        self.model.move(Coordinate.d8, Coordinate.c7)
+        self.model.move(Coordinate.d2, Coordinate.c3)
+        self.model.move(Coordinate.f6, Coordinate.g5)
+        self.model.move(Coordinate.g3, Coordinate.h4)
+        self.model.move(Coordinate.d6, Coordinate.e5)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.d4, Coordinate.f6),
+                      (Coordinate.h4, Coordinate.f6),
+                      (Coordinate.b4, Coordinate.d6)])
+        self.assertEqual(moves, answer)
+        self.model.move(Coordinate.d4, Coordinate.f6)
+        moves = self.model.availableMoves()
+        answer = set([(Coordinate.f6, Coordinate.d8)])
+        self.assertEqual(moves, answer)
+
     def test_move_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.move,
             origin = "notCoordinate",

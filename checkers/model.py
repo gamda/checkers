@@ -57,6 +57,7 @@ class Model:
         for k in self.chips.keys():
             self.board.setContent(k,self.chips[k])
         self.turn = Chip.Color.white
+        self.currentChip = None
 
     def _neighborContentInDirection(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
@@ -80,18 +81,23 @@ class Model:
                 not neighbor["content"] is None and \
                 neighbor["content"].color != color
 
-    def _soldierAvailableJumps(self, color, square, directions):
+    def _directions(self):
+        whiteDirections = [Direction.topLeft, Direction.topRight]
+        blackDirections = [Direction.btmLeft, Direction.btmRight]
+        return whiteDirections if self.turn == Chip.Color.white else blackDirections
+
+    def _soldierAvailableJumps(self, square):
         jumps = set()
-        for direction in directions:
-            if self._enemyInNeighbor(color, square, direction):
+        for direction in self._directions():
+            if self._enemyInNeighbor(self.turn, square, direction):
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor and nextNeighbor["content"] is None:
                     jumps.add((square, nextNeighbor["coordinate"]))
         return jumps
 
-    def _soldierAvailableRegularMoves(self, square, directions):
+    def _soldierAvailableRegularMoves(self, square):
         moves = set()
-        for direction in directions:
+        for direction in self._directions():
             neighbor = self._neighborContentInDirection(square, direction)
             if neighbor is False: # outside the board
                 pass 
@@ -99,16 +105,15 @@ class Model:
                 moves.add((square, neighbor["coordinate"]))
         return moves
 
-    def _soldierChipAvailableMoves(self, color, square):
-        whiteDirections = [Direction.topLeft, Direction.topRight]
-        blackDirections = [Direction.btmLeft, Direction.btmRight]
-        directions = whiteDirections if color == Chip.Color.white else blackDirections
+    def _soldierCanJump(self, square):
+        return len(self._soldierAvailableJumps(square)) > 0
 
-        moves = self._soldierAvailableJumps(color, square, directions)
+    def _soldierChipAvailableMoves(self, square):
+        moves = self._soldierAvailableJumps(square)
         if len(moves) > 0:
             return moves, True
 
-        return self._soldierAvailableRegularMoves(square, directions), False
+        return self._soldierAvailableRegularMoves(square), False
 
     def chipAvailableMoves(self, square):
         """Returns a tuple (list[availableMoves], bool canJump)
@@ -133,10 +138,7 @@ class Model:
         if chip.color != self.turn:
             return set(), False
         if chip.type == Chip.Type.soldier:
-            if chip.color == Chip.Color.white:
-                return self._soldierChipAvailableMoves(Chip.Color.white, square)
-            else: # chip.color = black
-                return self._soldierChipAvailableMoves(Chip.Color.black, square)
+            return self._soldierChipAvailableMoves(square)
 
     # def _availableMoves(self, color):
 
@@ -154,6 +156,9 @@ class Model:
 
         """
         moves = set()
+        if not self.currentChip is None:
+            moves, canJump =  self.chipAvailableMoves(self.currentChip)
+            return moves
         canJump = False
         for coord, chip in self.chips.items(): 
             if chip.type == Chip.Type.soldier:
@@ -185,20 +190,29 @@ class Model:
             raise TypeError("destination must be from Coordinate enum")
         if not (origin, destination) in self.availableMoves():
             return self.MoveType.invalid, []
+        turnFinished = True
         # move chip
         self.board.move(origin, destination)
         self.chips[destination] = self.chips[origin]
         del self.chips[origin]
-        self.turn = Chip.Color.black \
-                    if self.turn == Chip.Color.white \
-                    else Chip.Color.white
         # remove chips if jump occured
         distance = destination - origin
         removed = []
-        if abs(distance) != 7 and abs(distance) != 9:
+        if abs(distance) != 7 and abs(distance) != 9: 
             removed = self._removeChips(origin, destination)
+            if self._soldierCanJump(destination):
+                turnFinished = False
+                self.currentChip = destination
 
+        if turnFinished:
+            self._nextTurn()
+            self.currentChip = None
         return (self._moveType(destination, removed), removed)
+
+    def _nextTurn(self):
+        self.turn = Chip.Color.black \
+                    if self.turn == Chip.Color.white \
+                    else Chip.Color.white
 
     def _moveType(self, destination, removed):
         if len(removed) > 0:

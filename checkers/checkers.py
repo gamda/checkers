@@ -187,7 +187,7 @@ def unhighlightOneSquare(coord):
 
 def whiteOrBlackSquare(coord):
     evenLetter = (coord // 8) % 2 == 1 # b, d, f, h are even letters
-    evenSquare = coord % 2 == 1 # even squares have odd values
+    evenSquare = coord % 2 == 1 # even squares have odd values in Coordinate()
     if evenLetter and evenSquare:
         return blackSquare
     elif evenLetter and not evenSquare:
