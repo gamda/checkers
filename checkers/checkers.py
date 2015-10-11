@@ -10,8 +10,8 @@ infoFont = pygame.font.SysFont(None,20)
 
 # window size
 WINDOW_WIDTH = 800
-WINDOW_HEIGHT = 570
-MARGIN = 25
+WINDOW_HEIGHT = 600
+MARGIN = 40
 SQR_WIDTH = 65
 SQR_HEIGHT = 65
 
@@ -85,7 +85,7 @@ def move(origin, destination):
         for c in chips:
             color = whiteOrBlackSquare(i)
             pygame.draw.rect(screen, color, squareRects[c])
-            pygame.display.flip()
+        pygame.display.flip()
 
 def findSquareClicked(pos):
     square = None
@@ -99,6 +99,7 @@ def drawScreen():
     drawSquares()
     drawChips()
     drawButtons()
+    drawNotation()
     pygame.display.flip()
 
 def drawSquares():
@@ -119,6 +120,25 @@ def drawChip(coord):
 
 def drawButtons():
     screen.blit(txtReset, btnReset)
+
+def drawNotation():
+    for n in range(8):
+        txt = basicFont.render(str(n + 1), True, (0,0,0), board)
+        lbl = txt.get_rect()
+        lbl.centerx = MARGIN // 2
+        lbl.centery = squareRects[Coordinate(n)].centery
+        screen.blit(txt, lbl)
+    letters = ['a','b','c','d','e','f','g','h']
+    for i in range(len(letters)):
+        txt = basicFont.render(letters[i], True, (0,0,0), board)
+        lbl = txt.get_rect()
+        lbl.centery = WINDOW_HEIGHT - MARGIN // 2
+        lbl.centerx = squareRects[Coordinate(i * 8)].centerx
+        screen.blit(txt, lbl)
+    # txtReset = basicFont.render( "Reset", True, (0,0,0), board )
+    # btnReset = txtReset.get_rect()
+    # btnReset.centerx = btnPanel.centerx
+    # btnReset.top = WINDOW_HEIGHT // 2
 
 def highlightSquares(coord):
     global moveDestinations
