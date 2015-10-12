@@ -48,11 +48,13 @@ moveDestinations = set()
 chipSelected = False
 
 def main( ):
-    blackPromotion()
+    whitePromotion()
     drawScreen()
     while 1:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or \
+              (event.type == pygame.KEYDOWN and \
+               event.key == pygame.K_ESCAPE):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
                 # a click happened
@@ -65,6 +67,7 @@ def handleClick(position):
     if square is None:
         # Check buttons, for now just reset
         model = Model()
+        whitePromotion()
         drawScreen()
     elif chipSelected and square in moveDestinations:
         move(chosenChip, square)

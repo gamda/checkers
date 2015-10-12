@@ -321,7 +321,7 @@ class TestModel(unittest.TestCase):
         self.assertNotIn(Coordinate.b4, self.model.chips.keys())
         self.assertEqual(removed, [Coordinate.b4])
 
-    def test_white_promotion(self):
+    def get_white_queen(self):
         self.model.move(Coordinate.c3, Coordinate.d4)
         self.model.move(Coordinate.d6, Coordinate.c5)
         self.model.move(Coordinate.b2, Coordinate.c3)
@@ -332,10 +332,8 @@ class TestModel(unittest.TestCase):
         self.model.move(Coordinate.f6, Coordinate.e5)
         self.model.move(Coordinate.d4, Coordinate.f6)
         self.model.move(Coordinate.f6, Coordinate.d8)
-        chip = self.model.chips[Coordinate.d8]
-        self.assertEqual(chip.type, Chip.Type.queen)
 
-    def test_black_promotion(self):
+    def get_black_queen(self):
         self.model.move(Coordinate.e3, Coordinate.f4)
         self.model.move(Coordinate.d6, Coordinate.c5)
         self.model.move(Coordinate.g3, Coordinate.h4)
@@ -347,8 +345,45 @@ class TestModel(unittest.TestCase):
         self.model.move(Coordinate.c3, Coordinate.d4)
         self.model.move(Coordinate.c5, Coordinate.e3)
         self.model.move(Coordinate.e3, Coordinate.g1)
+
+    def test_white_promotion(self):
+        self.get_white_queen()
+        chip = self.model.chips[Coordinate.d8]
+        self.assertEqual(chip.type, Chip.Type.queen)
+
+    def test_black_promotion(self):
+        self.get_black_queen()
         chip = self.model.chips[Coordinate.g1]
         self.assertEqual(chip.type, Chip.Type.queen)
+
+    def test_chip_available_moves_white_queen_no_jump(self):
+        self.get_white_queen()
+        self.model.move(Coordinate.d6, Coordinate.e5)
+        chip = self.model.chips[Coordinate.d8]
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        answer = set([(Coordinate.d8, Coordinate.e7),
+                      (Coordinate.d8, Coordinate.f6),
+                      (Coordinate.d8, Coordinate.g5),
+                      (Coordinate.d8, Coordinate.h4)])
+        self.assertEqual(moves, answer)
+
+    def test_chip_available_moves_white_queen_jump(self):
+        self.get_white_queen()
+        self.model.move(Coordinate.f8, Coordinate.e7)
+        chip = self.model.chips[Coordinate.d8]
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        answer = set([(Coordinate.d8, Coordinate.f6),
+                      (Coordinate.d8, Coordinate.g5),
+                      (Coordinate.d8, Coordinate.h4)])
+        self.assertEqual(moves, answer)
+        #------------------------------
+        # self.model.newGame()
+        # self.get_white_queen()
+        # self.model.move(Coordinate.g7, Coordinate.f6)
+        # moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        # answer = set([(Coordinate.d8, Coordinate.g5),
+        #               (Coordinate.d8, Coordinate.h4)])
+        # self.assertEqual(moves, answer)
 
     def test_square_has_ally_chip_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")

@@ -27,6 +27,9 @@ class Model:
         soldierJump = 1
         queenMove = 2
         queenJump = 3
+
+    def newGame(self):
+        self.__init__()
     
     def __init__(self):
         self.board = Gameboard()
@@ -75,11 +78,11 @@ class Model:
                         "content": self.board.getContent(newNeighbor)}
         return False
 
-    def _enemyInNeighbor(self, color, square, direction):
+    def _enemyInNeighbor(self, square, direction):
         neighbor = self._neighborContentInDirection(square, direction)
         return neighbor is not False and\
                 neighbor["content"] is not None and \
-                neighbor["content"].color != color
+                neighbor["content"].color != self.turn
 
     def _directions(self):
         whiteDirections = [Direction.topLeft, Direction.topRight]
@@ -89,7 +92,7 @@ class Model:
     def _soldierAvailableJumps(self, square):
         jumps = set()
         for direction in self._directions():
-            if self._enemyInNeighbor(self.turn, square, direction):
+            if self._enemyInNeighbor(square, direction):
                 nextNeighbor = self._nextNeighborContentInSquare(square, direction)
                 if nextNeighbor and nextNeighbor["content"] is None:
                     jumps.add((square, nextNeighbor["coordinate"]))
@@ -115,6 +118,30 @@ class Model:
 
         return self._soldierAvailableRegularMoves(square), False
 
+    def _queenChipAvailableMoves(self, square):
+        # directions = [Direction.topLeft, Direction.topRight,
+        #               Direction.btmLeft, Direction.btmRight]
+        moves, canJump = set(), False
+        direction = Direction.btmRight
+        neighbor = self._neighborContentInDirection(square, direction)
+        while neighbor is not False: 
+            if neighbor["content"] is None:
+                moves.add((square, neighbor["coordinate"]))
+            elif self._enemyInNeighbor(square, direction):
+                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
+                if nextNeighbor and nextNeighbor["content"] is None:
+                    if canJump:
+                        moves.add((square, nextNeighbor["coordinate"]))
+                    else:
+                        moves = set([(square, nextNeighbor["coordinate"])])
+                        canJump = True
+        
+            neighbor = self._neighborContentInDirection(
+                        neighbor["coordinate"], direction)
+
+        print('moves', moves)
+        return moves, canJump
+
     def chipAvailableMoves(self, square):
         """Returns a tuple (set[availableMoves], bool canJump)
 
@@ -136,7 +163,7 @@ class Model:
             return set(), False
         if chip.type == Chip.Type.soldier:
             return self._soldierChipAvailableMoves(square)
-        return set(), False
+        return self._queenChipAvailableMoves(square)
 
     # def _availableMoves(self, color):
 
@@ -154,14 +181,13 @@ class Model:
             return moves
         canJump = False
         for coord, chip in self.chips.items(): 
-            if chip.type == Chip.Type.soldier:
-                newMoves, newCanJump = self.chipAvailableMoves(coord)
-                if canJump == newCanJump: 
-                    moves = moves | newMoves
-                elif not canJump and newCanJump: # found a jump, delete old moves
-                    moves = newMoves
-                    canJump = True
-                # else found regular move, but jump found previously
+            newMoves, newCanJump = self.chipAvailableMoves(coord)
+            if canJump == newCanJump: 
+                moves = moves | newMoves
+            elif not canJump and newCanJump: # found a jump, delete old moves
+                moves = newMoves
+                canJump = True
+            # else found regular move, but jump found previously
         return moves
 
     def move(self, origin, destination):
