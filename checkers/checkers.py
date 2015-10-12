@@ -48,7 +48,6 @@ moveDestinations = set()
 chipSelected = False
 
 def main( ):
-    whitePromotion()
     drawScreen()
     while 1:
         for event in pygame.event.get():
@@ -66,8 +65,7 @@ def handleClick(position):
     square, chipJustSelected = findSquareClicked(position)
     if square is None:
         # Check buttons, for now just reset
-        model = Model()
-        whitePromotion()
+        model.newGame()
         drawScreen()
     elif chipSelected and square in moveDestinations:
         move(chosenChip, square)

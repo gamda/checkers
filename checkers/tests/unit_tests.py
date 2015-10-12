@@ -402,6 +402,9 @@ class TestModel(unittest.TestCase):
         moves, canJump = self.model.chipAvailableMoves(Coordinate.b6)
         answer = set([(Coordinate.b6, Coordinate.d4)])
         self.assertEqual(moves, answer)
+        # since the function used to find queen moves make no distinction
+        #   between white and black queens, there is no need to test
+        #   black chips' behavior separately
 
     def test_square_has_ally_chip_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")
