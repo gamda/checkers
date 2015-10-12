@@ -195,6 +195,7 @@ class Model:
         self.board.move(origin, destination)
         self.chips[destination] = self.chips[origin]
         del self.chips[origin]
+        self._promote(destination)
         # remove chips if jump occured
         distance = destination - origin
         removed = []
@@ -207,7 +208,16 @@ class Model:
         if turnFinished:
             self._nextTurn()
             self.currentChip = None
+            self._promote(destination)
         return (self._moveType(destination, removed), removed)
+
+    def _promote(self, square):
+        startIndex = 0 if self.turn == Chip.Color.white else 7
+        promoSquares = []
+        for i in range(startIndex, 64, 8):
+            promoSquares.append(Coordinate(i))
+        if square in promoSquares:
+            self.chips[square].promote()
 
     def _nextTurn(self):
         self.turn = Chip.Color.black \

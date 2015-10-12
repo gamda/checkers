@@ -318,6 +318,35 @@ class TestModel(unittest.TestCase):
         self.assertNotIn(Coordinate.b4, self.model.chips.keys())
         self.assertEqual(removed, [Coordinate.b4])
 
+    def test_white_promotion(self):
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.d6, Coordinate.c5)
+        self.model.move(Coordinate.b2, Coordinate.c3)
+        self.model.move(Coordinate.c7, Coordinate.d6)
+        self.model.move(Coordinate.c3, Coordinate.b4)
+        self.model.move(Coordinate.d8, Coordinate.c7)
+        self.model.move(Coordinate.d2, Coordinate.c3)
+        self.model.move(Coordinate.f6, Coordinate.e5)
+        self.model.move(Coordinate.d4, Coordinate.f6)
+        self.model.move(Coordinate.f6, Coordinate.d8)
+        chip = self.model.chips[Coordinate.d8]
+        self.assertEqual(chip.type, Chip.Type.queen)
+
+    def test_black_promotion(self):
+        self.model.move(Coordinate.e3, Coordinate.f4)
+        self.model.move(Coordinate.d6, Coordinate.c5)
+        self.model.move(Coordinate.g3, Coordinate.h4)
+        self.model.move(Coordinate.e7, Coordinate.d6)
+        self.model.move(Coordinate.h2, Coordinate.g3)
+        self.model.move(Coordinate.d8, Coordinate.e7)
+        self.model.move(Coordinate.g1, Coordinate.h2)
+        self.model.move(Coordinate.b6, Coordinate.a5)
+        self.model.move(Coordinate.c3, Coordinate.d4)
+        self.model.move(Coordinate.c5, Coordinate.e3)
+        self.model.move(Coordinate.e3, Coordinate.g1)
+        chip = self.model.chips[Coordinate.g1]
+        self.assertEqual(chip.type, Chip.Type.queen)
+
     def test_square_has_ally_chip_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")
 

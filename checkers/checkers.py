@@ -5,8 +5,7 @@ from gameboard.coordinate import Coordinate
 
 pygame.init()
 # set up fonts
-basicFont = pygame.font.SysFont(None, 48)
-infoFont = pygame.font.SysFont(None,20)
+basicFont = pygame.font.SysFont(None, 36)
 
 # window size
 WINDOW_WIDTH = 800
@@ -135,10 +134,6 @@ def drawNotation():
         lbl.centery = WINDOW_HEIGHT - MARGIN // 2
         lbl.centerx = squareRects[Coordinate(i * 8)].centerx
         screen.blit(txt, lbl)
-    # txtReset = basicFont.render( "Reset", True, (0,0,0), board )
-    # btnReset = txtReset.get_rect()
-    # btnReset.centerx = btnPanel.centerx
-    # btnReset.top = WINDOW_HEIGHT // 2
 
 def highlightSquares(coord):
     global moveDestinations
