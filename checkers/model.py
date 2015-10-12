@@ -117,29 +117,68 @@ class Model:
 
         return self._soldierAvailableRegularMoves(square), False
 
-    def _queenChipAvailableMoves(self, square):
-        # directions = [Direction.topLeft, Direction.topRight,
-        #               Direction.btmLeft, Direction.btmRight]
+    def _queenRivalFound(self, origin, square, direction, moves, canJump):
+        myMoves = moves
+        neighbor = self._neighborInDirection(square, direction)
+        if neighbor is not False:
+            content = self.board.getContent(neighbor)
+            if content is None and canJump:
+                myMoves.add((origin, neighbor))
+                return myMoves, True
+            elif content is None and not canJump:
+                myMoves = set([(origin, neighbor)])
+                return myMoves, True
+        return moves, canJump # two chips in a row or out of bounds
+
+    def _queenMovesInDirection(self, square, direction):
         moves, canJump = set(), False
-        direction = Direction.btmRight
         neighbor = self._neighborInDirection(square, direction)
         while neighbor is not False: 
-            if self.board.getContent(neighbor) is None:
+            content = self.board.getContent(neighbor)
+            if content is None: # empty
                 moves.add((square, neighbor))
-            elif self._enemyInNeighbor(square, direction):
-                nextNeighbor = self._nextNeighborInDirection(square, direction)
-                if nextNeighbor and self.board.getContent(nextNeighbor) is None:
-                    if canJump:
-                        moves.add((square, nextNeighbor))
-                    else:
-                        moves = set([(square, nextNeighbor)])
-                        canJump = True
-        
+            elif content.color != self. turn: # rival
+                # rival chip found
+                oldMoves = moves
+                moves, canJump = self._queenRivalFound(square, 
+                                                        neighbor, 
+                                                        direction, 
+                                                        moves, 
+                                                        canJump)
+                neighbor = self._neighborInDirection(neighbor, direction)
+                if moves == oldMoves:
+                    break # two chips in a row or out of bounds
+            else:
+                break # ally chip found
             neighbor = self._neighborInDirection(
                         neighbor, direction)
-
-        print('moves', moves)
         return moves, canJump
+
+    def _queenCanJump(self, square):
+        moves, canJump = self._queenChipAvailableMoves(square)
+        return canJump
+
+    def _queenChipAvailableMoves(self, square):
+        directions = [Direction.topLeft, Direction.topRight,
+                      Direction.btmLeft, Direction.btmRight]
+        moves, canJump = set(), False
+
+        for d in directions:
+            newMoves, newCanJump = self._queenMovesInDirection(square, d)
+            if canJump == newCanJump: 
+                moves = moves | newMoves
+            elif not canJump and newCanJump: # found a jump, delete old moves
+                moves = newMoves
+                canJump = True
+        return moves, canJump
+
+    def _chipCanJump(self, square):
+        if square in self.chips.keys():
+            if self.chips[square].type == Chip.Type.soldier:
+                return self._soldierCanJump(square)
+            else:
+                return self._queenCanJump(square)
+        return False
 
     def chipAvailableMoves(self, square):
         """Returns a tuple (set[availableMoves], bool canJump)
@@ -219,7 +258,7 @@ class Model:
         removed = []
         if abs(distance) != 7 and abs(distance) != 9: 
             removed = self._removeChips(origin, destination)
-            if self._soldierCanJump(destination):
+            if self._chipCanJump(destination):
                 turnFinished = False
                 self.currentChip = destination
 

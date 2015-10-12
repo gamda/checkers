@@ -377,13 +377,31 @@ class TestModel(unittest.TestCase):
                       (Coordinate.d8, Coordinate.h4)])
         self.assertEqual(moves, answer)
         #------------------------------
-        # self.model.newGame()
-        # self.get_white_queen()
-        # self.model.move(Coordinate.g7, Coordinate.f6)
-        # moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
-        # answer = set([(Coordinate.d8, Coordinate.g5),
-        #               (Coordinate.d8, Coordinate.h4)])
-        # self.assertEqual(moves, answer)
+        self.model.newGame()
+        self.get_white_queen()
+        self.model.move(Coordinate.g7, Coordinate.f6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        answer = set([(Coordinate.d8, Coordinate.g5),
+                      (Coordinate.d8, Coordinate.h4)])
+        self.assertEqual(moves, answer)
+        #------------------------------
+        self.model.newGame()
+        self.get_white_queen()
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        answer = set([(Coordinate.d8, Coordinate.h4)])
+        self.assertEqual(moves, answer)
+        #------------------------------
+        self.model.newGame()
+        self.get_white_queen()
+        self.model.move(Coordinate.b6, Coordinate.a5)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.d8)
+        answer = set([(Coordinate.d8, Coordinate.b6)])
+        self.assertEqual(moves, answer)
+        self.model.move(Coordinate.d8, Coordinate.b6)
+        moves, canJump = self.model.chipAvailableMoves(Coordinate.b6)
+        answer = set([(Coordinate.b6, Coordinate.d4)])
+        self.assertEqual(moves, answer)
 
     def test_square_has_ally_chip_raises_TypeError(self):
         self.assertRaises(TypeError, self.model.squareHasAllyChip, "notCoordinate")
