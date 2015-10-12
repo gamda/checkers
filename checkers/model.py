@@ -62,27 +62,25 @@ class Model:
         self.turn = Chip.Color.white
         self.currentChip = None
 
-    def _neighborContentInDirection(self, square, direction):
+    def _neighborInDirection(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
         if neighborSquare is not None:
-            return {"coordinate": neighborSquare, 
-                    "content": self.board.getContent(neighborSquare)}
+            return neighborSquare
         return False
 
-    def _nextNeighborContentInSquare(self, square, direction):
+    def _nextNeighborInDirection(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
         if neighborSquare is not None: # check the next
             newNeighbor = self.board.neighborInDirection(neighborSquare, direction)
             if newNeighbor is not None:
-                return {"coordinate": newNeighbor,
-                        "content": self.board.getContent(newNeighbor)}
+                return newNeighbor
         return False
 
     def _enemyInNeighbor(self, square, direction):
-        neighbor = self._neighborContentInDirection(square, direction)
+        neighbor = self._neighborInDirection(square, direction)
         return neighbor is not False and\
-                neighbor["content"] is not None and \
-                neighbor["content"].color != self.turn
+                self.board.getContent(neighbor) is not None and \
+                self.board.getContent(neighbor).color != self.turn
 
     def _directions(self):
         whiteDirections = [Direction.topLeft, Direction.topRight]
@@ -93,19 +91,20 @@ class Model:
         jumps = set()
         for direction in self._directions():
             if self._enemyInNeighbor(square, direction):
-                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor and nextNeighbor["content"] is None:
-                    jumps.add((square, nextNeighbor["coordinate"]))
+                nextNeighbor = self._nextNeighborInDirection(square, direction)
+                if nextNeighbor is not False \
+                        and self.board.getContent(nextNeighbor) is None:
+                    jumps.add((square, nextNeighbor))
         return jumps
 
     def _soldierAvailableRegularMoves(self, square):
         moves = set()
         for direction in self._directions():
-            neighbor = self._neighborContentInDirection(square, direction)
+            neighbor = self._neighborInDirection(square, direction)
             if neighbor is False: # outside the board
                 pass 
-            elif neighbor["content"] is None: # empty square, valid move
-                moves.add((square, neighbor["coordinate"]))
+            elif self.board.getContent(neighbor) is None: # empty square, valid move
+                moves.add((square, neighbor))
         return moves
 
     def _soldierCanJump(self, square):
@@ -123,21 +122,21 @@ class Model:
         #               Direction.btmLeft, Direction.btmRight]
         moves, canJump = set(), False
         direction = Direction.btmRight
-        neighbor = self._neighborContentInDirection(square, direction)
+        neighbor = self._neighborInDirection(square, direction)
         while neighbor is not False: 
-            if neighbor["content"] is None:
-                moves.add((square, neighbor["coordinate"]))
+            if self.board.getContent(neighbor) is None:
+                moves.add((square, neighbor))
             elif self._enemyInNeighbor(square, direction):
-                nextNeighbor = self._nextNeighborContentInSquare(square, direction)
-                if nextNeighbor and nextNeighbor["content"] is None:
+                nextNeighbor = self._nextNeighborInDirection(square, direction)
+                if nextNeighbor and self.board.getContent(nextNeighbor) is None:
                     if canJump:
-                        moves.add((square, nextNeighbor["coordinate"]))
+                        moves.add((square, nextNeighbor))
                     else:
-                        moves = set([(square, nextNeighbor["coordinate"])])
+                        moves = set([(square, nextNeighbor)])
                         canJump = True
         
-            neighbor = self._neighborContentInDirection(
-                        neighbor["coordinate"], direction)
+            neighbor = self._neighborInDirection(
+                        neighbor, direction)
 
         print('moves', moves)
         return moves, canJump
