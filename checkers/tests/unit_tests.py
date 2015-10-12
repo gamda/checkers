@@ -78,6 +78,9 @@ class TestModel(unittest.TestCase):
         self.assertEqual(self.model.board.getContent(Coordinate.h8).color, 
             Chip.Color.black)
 
+    def test_chip_available_moves_raises_TypeError(self):
+        self.assertRaises(TypeError, self.model.chipAvailableMoves, "notCoordinate")
+
     def test_chip_available_moves_white_turn(self):
         # White chip with one move
         moves, canJump = self.model.chipAvailableMoves(Coordinate.a3)

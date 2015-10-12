@@ -61,24 +61,24 @@ class Model:
 
     def _neighborContentInDirection(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
-        if not neighborSquare is None:
+        if neighborSquare is not None:
             return {"coordinate": neighborSquare, 
                     "content": self.board.getContent(neighborSquare)}
         return False
 
     def _nextNeighborContentInSquare(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
-        if not neighborSquare is None: # check the next
+        if neighborSquare is not None: # check the next
             newNeighbor = self.board.neighborInDirection(neighborSquare, direction)
-            if not newNeighbor is None:
+            if newNeighbor is not None:
                 return {"coordinate": newNeighbor,
                         "content": self.board.getContent(newNeighbor)}
         return False
 
     def _enemyInNeighbor(self, color, square, direction):
         neighbor = self._neighborContentInDirection(square, direction)
-        return not neighbor is False and\
-                not neighbor["content"] is None and \
+        return neighbor is not False and\
+                neighbor["content"] is not None and \
                 neighbor["content"].color != color
 
     def _directions(self):
@@ -116,21 +116,18 @@ class Model:
         return self._soldierAvailableRegularMoves(square), False
 
     def chipAvailableMoves(self, square):
-        """Returns a tuple (list[availableMoves], bool canJump)
-
-        This function is meant to be called by _chipAvailableMoves, which already
-        checked that the chip exists in both the chips and board.squares dictionaries.
-        For this reason, it doesn't check to see if square is a Coordinate, the check
-        already happened in the previous function.
+        """Returns a tuple (set[availableMoves], bool canJump)
 
         Args:
             square (Coordinate): the square where the chip is/should be
         Returns:
-            list: tuple of Coordinate values of valid moves for the chip. They have
+            set: tuple of Coordinate values of valid moves for the chip. They have
             the form (Coordinate.origin, Coordinate.destination)
             bool: True if the chip can jump, False otherwise
 
         """
+        if not isinstance(square, Coordinate):
+            raise TypeError("square variable must be from Coordinate enum")
         if square not in self.chips.keys() or self.board.getContent(square) is None:
             # chip is not in the game anymore
             return set(), False
@@ -139,16 +136,12 @@ class Model:
             return set(), False
         if chip.type == Chip.Type.soldier:
             return self._soldierChipAvailableMoves(square)
+        return set(), False
 
     # def _availableMoves(self, color):
 
     def availableMoves(self):
         """Returns a set with tuples of Coordinate values of all available moves
-
-        This function is meant to be called by _chipAvailableMoves, which already
-        checked that the chip exists in both the chips and board.squares dictionaries.
-        For this reason, it doesn't check to see if square is a Coordinate, the check
-        already happened in the previous function.
 
         Returns:
             set: tuple of Coordinate values of valid moves for the chip. They have
@@ -156,7 +149,7 @@ class Model:
 
         """
         moves = set()
-        if not self.currentChip is None:
+        if self.currentChip is not None:
             moves, canJump =  self.chipAvailableMoves(self.currentChip)
             return moves
         canJump = False
