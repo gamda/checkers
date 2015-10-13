@@ -18,18 +18,6 @@ SQR_HEIGHT = 65
 screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),0,32)
 pygame.display.set_caption( 'Checkers!' )
 
-board = 147, 75, 0
-blackSquare = 211, 154, 62
-whiteSquare = 234, 249, 217
-highlight = 255, 215, 0
-
-btnPanel = pygame.Rect(WINDOW_HEIGHT,0,
-                       WINDOW_WIDTH-WINDOW_HEIGHT,WINDOW_HEIGHT)
-txtReset = basicFont.render( "Reset", True, (0,0,0), board )
-btnReset = txtReset.get_rect()
-btnReset.centerx = btnPanel.centerx
-btnReset.top = WINDOW_HEIGHT // 2
-
 # generate squares for the board
 drawX, drawY = MARGIN - SQR_WIDTH, WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
 
@@ -41,6 +29,8 @@ for i in range(64):
     squareRects[Coordinate(i)] = pygame.Rect(drawX,drawY,SQR_WIDTH,SQR_HEIGHT)
     drawY -= SQR_HEIGHT
 highlightedSquares = []
+
+buttons = {}
 
 model = Model()
 chosenChip = None
@@ -64,9 +54,14 @@ def handleClick(position):
     global model, chipSelected, chosenChip
     square, chipJustSelected = findSquareClicked(position)
     if square is None:
-        # Check buttons, for now just reset
-        model.newGame()
-        drawScreen()
+        # Check buttons
+        for k, b in buttons.items():
+            if b.collidepoint(position):
+                if k == 'reset':
+                    model.newGame()
+                    drawScreen()
+                elif k == 'exit':
+                    sys.exit()
     elif chipSelected and square in moveDestinations:
         move(chosenChip, square)
         chosenChip = None
@@ -101,6 +96,7 @@ def drawScreen():
     pygame.display.flip()
 
 def drawSquares():
+    board = 147, 75, 0
     screen.fill(board)
     for i in Coordinate:
         color = whiteOrBlackSquare(i)
@@ -123,9 +119,36 @@ def drawChip(coord):
         pygame.draw.circle(screen, queenCenter, center,15)
 
 def drawButtons():
-    screen.blit(txtReset, btnReset)
+    background = 226, 132, 19
+    btnBG = 246, 152, 39
+    btnPanel = pygame.Rect(WINDOW_HEIGHT,0,
+                       WINDOW_WIDTH-WINDOW_HEIGHT,WINDOW_HEIGHT)
+    pygame.draw.rect(screen, background, btnPanel)
+    
+    btnReset = pygame.Rect(btnPanel.left + 10, 
+                            squareRects[Coordinate.a3].top, 
+                            btnPanel.width - 20,
+                            SQR_HEIGHT)
+    buttons['reset'] = btnReset
+    pygame.draw.rect(screen, btnBG, btnReset)
+    txtReset = basicFont.render( "New Game", True, (0,0,0), btnBG )
+    resetRect = txtReset.get_rect()
+    resetRect.center = btnReset.center
+    screen.blit(txtReset, resetRect)
+
+    btnExit = pygame.Rect(btnPanel.left + 10, 
+                            squareRects[Coordinate.a1].top, 
+                            btnPanel.width - 20,
+                            SQR_HEIGHT)
+    buttons['exit'] = btnExit
+    pygame.draw.rect(screen, btnBG, btnExit)
+    txtExit = basicFont.render("Exit (Esc)", True, (0,0,0), btnBG)
+    exitRect = txtExit.get_rect()
+    exitRect.center = btnExit.center
+    screen.blit(txtExit, exitRect)
 
 def drawNotation():
+    board = 147, 75, 0
     for n in range(8):
         txt = basicFont.render(str(n + 1), True, (0,0,0), board)
         lbl = txt.get_rect()
@@ -156,6 +179,7 @@ def highlightSquares(coord):
             highlightOneSquare(s)
 
 def highlightOneSquare(coord):
+    highlight = 255, 215, 0
     highlightedSquares.append(coord)
     pygame.draw.rect(screen, highlight, squareRects[coord])
     height = SQR_HEIGHT - 8
@@ -186,6 +210,8 @@ def unhighlightOneSquare(coord):
     pygame.display.flip()
 
 def whiteOrBlackSquare(coord):
+    blackSquare = 211, 154, 62
+    whiteSquare = 234, 249, 217
     evenLetter = (coord // 8) % 2 == 1 # b, d, f, h are even letters
     evenSquare = coord % 2 == 1 # even squares have odd values in Coordinate()
     if evenLetter and evenSquare:
@@ -196,31 +222,6 @@ def whiteOrBlackSquare(coord):
         return whiteSquare
     else: # not evenLetter and not evenSquare
         return blackSquare
-
-def whitePromotion():
-    move(Coordinate.c3, Coordinate.d4)
-    move(Coordinate.d6, Coordinate.c5)
-    move(Coordinate.b2, Coordinate.c3)
-    move(Coordinate.c7, Coordinate.d6)
-    move(Coordinate.c3, Coordinate.b4)
-    move(Coordinate.d8, Coordinate.c7)
-    move(Coordinate.d2, Coordinate.c3)
-    move(Coordinate.f6, Coordinate.e5)
-    move(Coordinate.d4, Coordinate.f6)
-    move(Coordinate.f6, Coordinate.d8)
-
-def blackPromotion():
-    move(Coordinate.e3, Coordinate.f4)
-    move(Coordinate.d6, Coordinate.c5)
-    move(Coordinate.g3, Coordinate.h4)
-    move(Coordinate.e7, Coordinate.d6)
-    move(Coordinate.h2, Coordinate.g3)
-    move(Coordinate.d8, Coordinate.e7)
-    move(Coordinate.g1, Coordinate.h2)
-    move(Coordinate.b6, Coordinate.a5)
-    move(Coordinate.c3, Coordinate.d4)
-    move(Coordinate.c5, Coordinate.e3)
-    move(Coordinate.e3, Coordinate.g1)
 
 if __name__ == '__main__':
     main()
