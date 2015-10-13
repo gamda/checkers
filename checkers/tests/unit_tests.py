@@ -430,7 +430,7 @@ class TestModel(unittest.TestCase):
         self.model.move(Coordinate.d8, Coordinate.b6)
         self.model.move(Coordinate.b6, Coordinate.d4)
         self.model.move(Coordinate.d4, Coordinate.h8)
-        self.model.move(Coordinate.f8, Coordinate.g7) # new queen double jump test case
+        self.model.move(Coordinate.f8, Coordinate.g7) # (1) new queen double jump test case
         self.model.move(Coordinate.h8, Coordinate.e5)
         self.model.move(Coordinate.e5, Coordinate.c7)
         self.model.move(Coordinate.b8, Coordinate.d6)
@@ -444,6 +444,34 @@ class TestModel(unittest.TestCase):
         self.model.move(Coordinate.c3, Coordinate.a5)
         move, removed = self.model.move(Coordinate.a5, Coordinate.c7)
         self.assertEqual(move, self.model.Gamestate.whiteWon)
+
+    def test_gamestate_black_won(self):
+        self.get_black_queen()
+        self.model.move(Coordinate.e1, Coordinate.f2) # (1) other queen double jump test
+        self.model.move(Coordinate.g1, Coordinate.e3)
+        self.model.move(Coordinate.e3, Coordinate.g5)
+        self.model.move(Coordinate.a3, Coordinate.b4)
+        self.model.move(Coordinate.a5, Coordinate.c3)
+        self.model.move(Coordinate.c3, Coordinate.e1)
+        self.model.move(Coordinate.c1, Coordinate.d2)
+        self.model.move(Coordinate.g5, Coordinate.c1)
+        self.model.move(Coordinate.c1, Coordinate.a3)
+        self.model.move(Coordinate.h4, Coordinate.g5)
+        self.model.move(Coordinate.f6, Coordinate.h4)
+        self.model.move(Coordinate.h4, Coordinate.f2)
+        self.model.move(Coordinate.a1, Coordinate.b2)
+        self.model.move(Coordinate.a3, Coordinate.c1)
+        self.model.move(Coordinate.h2, Coordinate.g3)
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        self.model.move(Coordinate.g3, Coordinate.f4)
+        move, removed = self.model.move(Coordinate.g5, Coordinate.e3)
+        self.assertEqual(move, self.model.Gamestate.blackWon)
+
+# (1) Originally, tests would be added to make sure that a queen takes
+#       a double jump if available. However, no source could be found
+#       to confim that a queen must take a double jump over a single
+#       jump. Therefore, fhis model allows a queen to choose a single
+#       jump over a double jump if the circumstance presents itself.
 
 if __name__ == '__main__':
     unittest.main()
