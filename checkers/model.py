@@ -21,12 +21,12 @@ class Chip:
         self.type = self.Type.queen
 
 class Model:
-    class MoveType(Enum):
-        invalid = -1
-        soldierMove = 0
-        soldierJump = 1
-        queenMove = 2
-        queenJump = 3
+    class Gamestate(Enum):
+        invalidMove = -1
+        inProgress = 0
+        whiteWon = 1
+        blackWon = 2
+        tie = 3
 
     def newGame(self):
         self.__init__()
@@ -229,15 +229,15 @@ class Model:
         return moves
 
     def move(self, origin, destination):
-        """Performs the requested move and returns a tuple (MoveType, list)
+        """Performs the requested move and returns a tuple (Gamestate, list)
 
         Args:
             origin (Coordinate): the square where the chip is currently
             destination (Direction): the square where the chip will end
         Returns:
-            tuple: (MoveType, list)
-                MoveType: value from enum
-                list: Coordinate values indicating the chips removed
+            tuple: (Gamestate, list)
+                Gamestate: value from enum 
+                list: Coordinate values indicating the chip(s) removed
         Raises:
             TypeError: if origin or destination is not Coordinate
         """
@@ -246,7 +246,7 @@ class Model:
         if not isinstance(destination, Coordinate):
             raise TypeError("destination must be from Coordinate enum")
         if not (origin, destination) in self.availableMoves():
-            return self.MoveType.invalid, []
+            return self.Gamestate.invalidMove, []
         turnFinished = True
         # move chip
         self.board.move(origin, destination)
@@ -266,7 +266,7 @@ class Model:
             self._nextTurn()
             self.currentChip = None
             self._promote(destination)
-        return (self._moveType(destination, removed), removed)
+        return (self._gamestate(), removed)
 
     def _promote(self, square):
         startIndex = 0 if self.turn == Chip.Color.white else 7
@@ -281,17 +281,12 @@ class Model:
                     if self.turn == Chip.Color.white \
                     else Chip.Color.white
 
-    def _moveType(self, destination, removed):
-        if len(removed) > 0:
-            if self.chips[destination].type == Chip.Type.soldier:
-                return self.MoveType.soldierJump
-            else:
-                return self.MoveType.queenJump
-        else:
-            if self.chips[destination].type == Chip.Type.soldier:
-                return self.MoveType.soldierMove
-            else:
-                return self.MoveType.queenMove
+    def _gamestate(self):
+        if len(self.availableMoves()) == 0:
+            return self.Gamestate.whiteWon \
+                    if self.turn == Chip.Color.black \
+                    else self.Gamestate.blackWon
+        return self.Gamestate.inProgress
 
     def _removeChips(self, origin, destination):
         removed = []
