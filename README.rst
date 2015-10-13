@@ -20,8 +20,6 @@ Type - Enum:
     * Type.soldier
     * Type.queen
 
-promote():
-
 Model
 -----
 
@@ -62,11 +60,11 @@ move(origin, destination):
     *TypeError*: if *origin* or *destination* is not **Coordinate**
 
 **Gamestate** - Enum:
-    Gamestate.invalidMove 
-    Gamestate.inProgress 
-    Gamestate.whiteWon 
-    Gamestate.blackWon 
-    Gamestate.tie 
+    * Gamestate.invalidMove 
+    * Gamestate.inProgress 
+    * Gamestate.whiteWon 
+    * Gamestate.blackWon 
+    * Gamestate.tie 
 
 
 
