@@ -418,6 +418,32 @@ class TestModel(unittest.TestCase):
     def test_square_has_ally_chip_ally(self):
         self.assertTrue(self.model.squareHasAllyChip(Coordinate.a3))
 
+    def test_gamestate_white_won(self):
+        self.get_white_queen()
+        self.model.move(Coordinate.h6, Coordinate.g5)
+        self.model.move(Coordinate.d8, Coordinate.h4)
+        self.model.move(Coordinate.g7, Coordinate.f6)
+        self.model.move(Coordinate.h4, Coordinate.d8)
+        self.model.move(Coordinate.h8, Coordinate.g7)
+        self.model.move(Coordinate.g3, Coordinate.h4)
+        self.model.move(Coordinate.b6, Coordinate.a5)
+        self.model.move(Coordinate.d8, Coordinate.b6)
+        self.model.move(Coordinate.b6, Coordinate.d4)
+        self.model.move(Coordinate.d4, Coordinate.h8)
+        self.model.move(Coordinate.f8, Coordinate.g7) # new queen double jump test case
+        self.model.move(Coordinate.h8, Coordinate.e5)
+        self.model.move(Coordinate.e5, Coordinate.c7)
+        self.model.move(Coordinate.b8, Coordinate.d6)
+        self.model.move(Coordinate.b4, Coordinate.c5)
+        self.model.move(Coordinate.d6, Coordinate.b4)
+        self.model.move(Coordinate.b4, Coordinate.d2)
+        self.model.move(Coordinate.e1, Coordinate.c3)
+        self.model.move(Coordinate.a7, Coordinate.b6)
+        self.model.move(Coordinate.e3, Coordinate.d4)
+        self.model.move(Coordinate.a5, Coordinate.b4)
+        self.model.move(Coordinate.c3, Coordinate.a5)
+        move, removed = self.model.move(Coordinate.a5, Coordinate.c7)
+        self.assertEqual(move, self.model.Gamestate.whiteWon)
 
 if __name__ == '__main__':
     unittest.main()
