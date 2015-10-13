@@ -64,7 +64,7 @@ class Model:
         for k in self.chips.keys():
             self.board.setContent(k,self.chips[k])
         self.turn = Chip.Color.white
-        self.currentChip = None
+        self._currentChip = None
 
     def _neighborInDirection(self, square, direction):
         neighborSquare = self.board.neighborInDirection(square, direction)
@@ -218,8 +218,8 @@ class Model:
 
         """
         moves = set()
-        if self.currentChip is not None:
-            moves, canJump =  self.chipAvailableMoves(self.currentChip)
+        if self._currentChip is not None:
+            moves, canJump =  self.chipAvailableMoves(self._currentChip)
             return moves
         canJump = False
         for coord, chip in self.chips.items(): 
@@ -263,11 +263,11 @@ class Model:
             removed = self._removeChips(origin, destination)
             if self._chipCanJump(destination):
                 turnFinished = False
-                self.currentChip = destination
+                self._currentChip = destination
 
         if turnFinished:
             self._nextTurn()
-            self.currentChip = None
+            self._currentChip = None
             self._promote(destination)
         return (self._gamestate(), removed)
 

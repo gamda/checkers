@@ -24,8 +24,23 @@ Type - Enum:
     * Type.soldier
     * Type.queen
 
+*color* - read-only property
+
+*type* - read-only property
+
 Model
 -----
+
+*board* - property:
+    Instance of **Gameboard** managed by Model. Treat as read-only.
+
+*chips* - property:
+    *Dictionary* where *keys* are **Coordinate** values and *items* are
+    **Chip** instances with *Color* and *Type* correctly set. When a move
+    is made, this property is updated to reflect the current gamestate.
+
+*turn* - property:
+    **Chip.Color** value to reflect whose turn it is in the current gamestate
 
 chipAvailableMoves(square):
     Args:
