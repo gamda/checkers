@@ -1,3 +1,7 @@
+# Copyright (c) 2015 Daniel Garcia
+#
+# See the file LICENSE.txt for copying permission.
+
 import sys, pygame
 import pygame.locals
 from model import Model, Chip

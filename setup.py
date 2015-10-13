@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='checkers',
-      version='0.1',
+      version='1.0',
       description='implementation of the game Checkers',
       long_description=readme(),
       classifiers=[

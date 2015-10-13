@@ -1,3 +1,7 @@
+# Copyright (c) 2015 Daniel Garcia
+#
+# See the file LICENSE.txt for copying permission.
+
 import unittest
 import random
 from checkers.model import Model, Chip

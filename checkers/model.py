@@ -1,3 +1,7 @@
+# Copyright (c) 2015 Daniel Garcia
+#
+# See the file LICENSE.txt for copying permission.
+
 from enum import Enum
 from gameboard.gameboard import Gameboard
 from gameboard.gameboard import Direction
@@ -235,9 +239,8 @@ class Model:
             origin (Coordinate): the square where the chip is currently
             destination (Direction): the square where the chip will end
         Returns:
-            tuple: (Gamestate, list)
-                Gamestate: value from enum 
-                list: Coordinate values indicating the chip(s) removed
+            Gamestate: value from enum 
+            list: Coordinate values indicating the chip(s) removed
         Raises:
             TypeError: if origin or destination is not Coordinate
         """
@@ -320,7 +323,7 @@ class Model:
         Args:
             square (Coordinate): the square to check for an ally chip
         Returns:
-            Boolean: True if the chip belongs to the team whose turn it is, False otherwise
+            bool: True if the chip belongs to the team whose turn it is, False otherwise
         Raises:
             TypeError: if square is not Coordinate
         """
