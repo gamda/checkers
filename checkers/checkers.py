@@ -177,7 +177,9 @@ def highlight_squares(coord):
             model.turn == model.chips[coord].color: 
         # only highlight if there's a chip
         toHighlight = [coord]
-        moves, _ = model.chip_available_moves(coord)
+        chip_moves, _ = model.chip_available_moves(coord)
+        all_moves = model.available_moves()
+        moves = chip_moves & all_moves
         for m in moves:
             toHighlight.append(m[1])
             move_destinations.add(m[1])
