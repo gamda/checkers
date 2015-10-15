@@ -1,6 +1,6 @@
-# Copyright (c) 2015 Daniel Garcia
+# Copyright (c) 2015 Gamda Software, LLC
 #
-# See the file LICENSE.txt_ for copying permission.
+# See the file LICENSE.txt for copying permission.
 
 import sys, pygame
 import pygame.locals
@@ -77,12 +77,13 @@ def handle_click(position):
 def move(origin, destination):
     move, chips = model.move(origin, destination)
     unghighlight_squares()
+    update_turn()
     # remove chip if necessary
     if len(chips) > 0:
         for c in chips:
             color = tile_color(i)
             pygame.draw.rect(screen, color, board_tile_rects[c])
-        pygame.display.flip()
+    pygame.display.flip()
 
 def find_square_clicked(pos):
     square = None
@@ -98,6 +99,7 @@ def draw_screen():
     draw_chips()
     draw_buttons()
     draw_notation()
+    update_turn()
     pygame.display.flip()
 
 def draw_squares():
@@ -123,6 +125,13 @@ def draw_chip(coord):
     if chip.type == Chip.Type.queen:
         pygame.draw.circle(screen, queen_center, center,15)
 
+def update_turn():
+    black_chip = 0, 0, 0
+    white_chip = 255, 0, 0
+    color = white_chip if model.turn == Chip.Color.white else black_chip
+    center = buttons['chip'].center
+    pygame.draw.circle(screen, color, center, 25)
+
 def draw_buttons():
     background = 226, 132, 19
     btn_BG = 246, 152, 39
@@ -144,15 +153,33 @@ def draw_buttons():
     screen.blit(txt_Reset, reset_rect)
 
     btn_Exit = pygame.Rect(btn_Panel.left + 10, 
-                            board_tile_rects[Coordinate.a1].top, 
-                            btn_Panel.width - 20,
-                            SQR_HEIGHT)
+                           board_tile_rects[Coordinate.a1].top, 
+                           btn_Panel.width - 20,
+                           SQR_HEIGHT)
     buttons['exit'] = btn_Exit
     pygame.draw.rect(screen, btn_BG, btn_Exit)
     txt_Exit = basic_font.render("Exit (Esc)", True, (0,0,0), btn_BG)
     exit_rect = txt_Exit.get_rect()
     exit_rect.center = btn_Exit.center
     screen.blit(txt_Exit, exit_rect)
+
+    btn_turn = pygame.Rect(btn_Panel.left + 10,
+                           board_tile_rects[Coordinate.a5].top,
+                           btn_Panel.width - 20,
+                           SQR_HEIGHT)
+    pygame.draw.rect(screen, btn_BG, btn_turn)
+    txt_turn = basic_font.render("Turn: ", True, (0,0,0), btn_BG)
+    turn_rect = txt_turn.get_rect()
+    turn_rect.left = btn_turn.left + MARGIN // 2
+    turn_rect.centery = btn_turn.centery
+    screen.blit(txt_turn, turn_rect)
+
+    btn_chip = pygame.Rect(btn_turn.left + btn_turn.width // 2,
+                           board_tile_rects[Coordinate.a5].top,
+                           SQR_WIDTH,
+                           SQR_HEIGHT)
+    buttons['chip'] = btn_chip
+    pygame.draw.rect(screen, btn_BG, btn_chip)
 
 def draw_notation():
     board = 147, 75, 0
