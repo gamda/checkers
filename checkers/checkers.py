@@ -1,6 +1,6 @@
 # Copyright (c) 2015 Daniel Garcia
 #
-# See the file LICENSE.txt for copying permission.
+# See the file LICENSE.txt_ for copying permission.
 
 import sys, pygame
 import pygame.locals
@@ -8,8 +8,8 @@ from model import Model, Chip
 from gameboard.coordinate import Coordinate
 
 pygame.init()
-# set up fonts
-basicFont = pygame.font.SysFont(None, 36)
+# set up font
+basic_font = pygame.font.SysFont(None, 36)
 
 # window size
 WINDOW_WIDTH = 800
@@ -23,26 +23,27 @@ screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT),0,32)
 pygame.display.set_caption( 'Checkers!' )
 
 # generate squares for the board
-drawX, drawY = MARGIN - SQR_WIDTH, WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
+draw_x, draw_y = MARGIN - SQR_WIDTH, WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
 
-squareRects = {}
+board_tile_rects = {}
 for i in range(64):
     if i % 8 == 0: # new row
-        drawX += SQR_WIDTH
-        drawY = WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
-    squareRects[Coordinate(i)] = pygame.Rect(drawX,drawY,SQR_WIDTH,SQR_HEIGHT)
-    drawY -= SQR_HEIGHT
-highlightedSquares = []
+        draw_x += SQR_WIDTH
+        draw_y = WINDOW_HEIGHT - MARGIN - SQR_HEIGHT
+    board_tile_rects[Coordinate(i)] = pygame.Rect(draw_x,draw_y,
+                                                  SQR_WIDTH,
+                                                  SQR_HEIGHT)
+    draw_y -= SQR_HEIGHT
 
+highlighted_squares = []
 buttons = {}
-
 model = Model()
-chosenChip = None
-moveDestinations = set()
-chipSelected = False
+chosen_chip = None
+move_destinations = set()
+chip_selected = False
 
 def main( ):
-    drawScreen()
+    draw_screen()
     while 1:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or \
@@ -50,182 +51,183 @@ def main( ):
                event.key == pygame.K_ESCAPE):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONUP:
-                # a click happened
-                #-----------------
-                handleClick(event.pos)
+                handle_click(event.pos)
 
-def handleClick(position):
-    global model, chipSelected, chosenChip
-    square, chipJustSelected = findSquareClicked(position)
+def handle_click(position):
+    global model, chip_selected, chosen_chip
+    square, chip_just_selected = find_square_clicked(position)
     if square is None:
         # Check buttons
         for k, b in buttons.items():
             if b.collidepoint(position):
                 if k == 'reset':
-                    model.newGame()
-                    drawScreen()
+                    model.new_game()
+                    draw_screen()
                 elif k == 'exit':
                     sys.exit()
-    elif chipSelected and square in moveDestinations:
-        move(chosenChip, square)
-        chosenChip = None
-        chipSelected = False
+    elif chip_selected and square in move_destinations:
+        move(chosen_chip, square)
+        chosen_chip = None
+        chip_selected = False
     else:
-        highlightSquares(square)
-        chosenChip = square
-        chipSelected = chipJustSelected
+        highlight_squares(square)
+        chosen_chip = square
+        chip_selected = chip_just_selected
 
 def move(origin, destination):
     move, chips = model.move(origin, destination)
-    unghighlightSquares()
+    unghighlight_squares()
+    # remove chip if necessary
     if len(chips) > 0:
         for c in chips:
-            color = whiteOrBlackSquare(i)
-            pygame.draw.rect(screen, color, squareRects[c])
+            color = tile_color(i)
+            pygame.draw.rect(screen, color, board_tile_rects[c])
         pygame.display.flip()
 
-def findSquareClicked(pos):
+def find_square_clicked(pos):
     square = None
-    for k, s in squareRects.items():
+    for k, s in board_tile_rects.items():
         if s.collidepoint(pos):
             square = k
-    return (square, model.squareHasAllyChip(square)) if not square is None \
+    return (square, model.square_contains_teammate(square)) \
+            if not square is None \
             else (None, False)
 
-def drawScreen():
-    drawSquares()
-    drawChips()
-    drawButtons()
-    drawNotation()
+def draw_screen():
+    draw_squares()
+    draw_chips()
+    draw_buttons()
+    draw_notation()
     pygame.display.flip()
 
-def drawSquares():
+def draw_squares():
     board = 147, 75, 0
     screen.fill(board)
     for i in Coordinate:
-        color = whiteOrBlackSquare(i)
-        pygame.draw.rect(screen, color, squareRects[i])
+        color = tile_color(i)
+        pygame.draw.rect(screen, color, board_tile_rects[i])
 
-def drawChips():
+def draw_chips():
     for coord in model.chips.keys():
-        drawChip(coord)
+        draw_chip(coord)
 
-def drawChip(coord):
-    blackChip = 0, 0, 0
-    whiteChip = 255, 0, 0
-    queenCenter = 127, 127, 127
+def draw_chip(coord):
+    black_chip = 0, 0, 0
+    white_chip = 255, 0, 0
+    queen_center = 127, 127, 127
 
     chip = model.chips[coord]
-    center = squareRects[coord].center
-    color = whiteChip if chip.color == Chip.Color.white else blackChip
+    center = board_tile_rects[coord].center
+    color = white_chip if chip.color == Chip.Color.white else black_chip
     pygame.draw.circle(screen, color, center, 25)
     if chip.type == Chip.Type.queen:
-        pygame.draw.circle(screen, queenCenter, center,15)
+        pygame.draw.circle(screen, queen_center, center,15)
 
-def drawButtons():
+def draw_buttons():
     background = 226, 132, 19
-    btnBG = 246, 152, 39
-    btnPanel = pygame.Rect(WINDOW_HEIGHT,0,
-                       WINDOW_WIDTH-WINDOW_HEIGHT,WINDOW_HEIGHT)
-    pygame.draw.rect(screen, background, btnPanel)
+    btn_BG = 246, 152, 39
+    btn_Panel = pygame.Rect(WINDOW_HEIGHT,
+                            0,
+                            WINDOW_WIDTH-WINDOW_HEIGHT,
+                            WINDOW_HEIGHT)
+    pygame.draw.rect(screen, background, btn_Panel)
     
-    btnReset = pygame.Rect(btnPanel.left + 10, 
-                            squareRects[Coordinate.a3].top, 
-                            btnPanel.width - 20,
+    btn_Reset = pygame.Rect(btn_Panel.left + 10, 
+                            board_tile_rects[Coordinate.a3].top, 
+                            btn_Panel.width - 20,
                             SQR_HEIGHT)
-    buttons['reset'] = btnReset
-    pygame.draw.rect(screen, btnBG, btnReset)
-    txtReset = basicFont.render( "New Game", True, (0,0,0), btnBG )
-    resetRect = txtReset.get_rect()
-    resetRect.center = btnReset.center
-    screen.blit(txtReset, resetRect)
+    buttons['reset'] = btn_Reset
+    pygame.draw.rect(screen, btn_BG, btn_Reset)
+    txt_Reset = basic_font.render( "New Game", True, (0,0,0), btn_BG )
+    reset_rect = txt_Reset.get_rect()
+    reset_rect.center = btn_Reset.center
+    screen.blit(txt_Reset, reset_rect)
 
-    btnExit = pygame.Rect(btnPanel.left + 10, 
-                            squareRects[Coordinate.a1].top, 
-                            btnPanel.width - 20,
+    btn_Exit = pygame.Rect(btn_Panel.left + 10, 
+                            board_tile_rects[Coordinate.a1].top, 
+                            btn_Panel.width - 20,
                             SQR_HEIGHT)
-    buttons['exit'] = btnExit
-    pygame.draw.rect(screen, btnBG, btnExit)
-    txtExit = basicFont.render("Exit (Esc)", True, (0,0,0), btnBG)
-    exitRect = txtExit.get_rect()
-    exitRect.center = btnExit.center
-    screen.blit(txtExit, exitRect)
+    buttons['exit'] = btn_Exit
+    pygame.draw.rect(screen, btn_BG, btn_Exit)
+    txt_Exit = basic_font.render("Exit (Esc)", True, (0,0,0), btn_BG)
+    exit_rect = txt_Exit.get_rect()
+    exit_rect.center = btn_Exit.center
+    screen.blit(txt_Exit, exit_rect)
 
-def drawNotation():
+def draw_notation():
     board = 147, 75, 0
     for n in range(8):
-        txt = basicFont.render(str(n + 1), True, (0,0,0), board)
+        txt = basic_font.render(str(n + 1), True, (0,0,0), board)
         lbl = txt.get_rect()
         lbl.centerx = MARGIN // 2
-        lbl.centery = squareRects[Coordinate(n)].centery
+        lbl.centery = board_tile_rects[Coordinate(n)].centery
         screen.blit(txt, lbl)
     letters = ['a','b','c','d','e','f','g','h']
     for i in range(len(letters)):
-        txt = basicFont.render(letters[i], True, (0,0,0), board)
+        txt = basic_font.render(letters[i], True, (0,0,0), board)
         lbl = txt.get_rect()
         lbl.centery = WINDOW_HEIGHT - MARGIN // 2
-        lbl.centerx = squareRects[Coordinate(i * 8)].centerx
+        lbl.centerx = board_tile_rects[Coordinate(i * 8)].centerx
         screen.blit(txt, lbl)
 
-def highlightSquares(coord):
-    global moveDestinations
-    unghighlightSquares()
+def highlight_squares(coord):
+    global move_destinations
+    unghighlight_squares()
     if coord in model.chips.keys() and \
-            model.turn == model.chips[coord].color: # only highlight if there's a chip
+            model.turn == model.chips[coord].color: 
+        # only highlight if there's a chip
         toHighlight = [coord]
-        moves = model.availableMoves() & \
-                model.chipAvailableMoves(coord)[0] # must be in both
-        # if len(moves) > 0: # only highlight if there are available moves
+        moves, _ = model.chip_available_moves(coord)
         for m in moves:
             toHighlight.append(m[1])
-            moveDestinations.add(m[1])
+            move_destinations.add(m[1])
         for s in toHighlight:
-            highlightOneSquare(s)
+            highlight_one_square(s)
 
-def highlightOneSquare(coord):
+def highlight_one_square(coord):
     highlight = 255, 215, 0
-    highlightedSquares.append(coord)
-    pygame.draw.rect(screen, highlight, squareRects[coord])
+    highlighted_squares.append(coord)
+    pygame.draw.rect(screen, highlight, board_tile_rects[coord])
     height = SQR_HEIGHT - 8
     width = SQR_WIDTH - 8
-    left = squareRects[coord].left + 4
-    top = squareRects[coord].top + 4
-    sqrColor = whiteOrBlackSquare(coord)
+    left = board_tile_rects[coord].left + 4
+    top = board_tile_rects[coord].top + 4
+    sqrColor = tile_color(coord)
     highlightedRect = pygame.Rect(left,top,width,height)
     pygame.draw.rect(screen, sqrColor, highlightedRect)
 
     if coord in model.chips.keys():
-        drawChip(coord)
+        draw_chip(coord)
     pygame.display.flip()
 
-def unghighlightSquares():
-    for s in highlightedSquares:
-        unhighlightOneSquare(s)
+def unghighlight_squares():
+    for s in highlighted_squares:
+        unhighlight_one_square(s)
 
-def unhighlightOneSquare(coord):
-    global highlightedSquares
-    highlightedSquares = highlightedSquares[1:]
-    color = whiteOrBlackSquare(coord)
-    pygame.draw.rect(screen,color, squareRects[coord])
+def unhighlight_one_square(coord):
+    global highlighted_squares
+    highlighted_squares = highlighted_squares[1:]
+    color = tile_color(coord)
+    pygame.draw.rect(screen, color, board_tile_rects[coord])
     
     # Redraw chip if there is one
     if coord in model.chips.keys():
-        drawChip(coord)
+        draw_chip(coord)
     pygame.display.flip()
 
-def whiteOrBlackSquare(coord):
-    blackSquare = 211, 154, 62
-    whiteSquare = 234, 249, 217
-    evenLetter = (coord // 8) % 2 == 1 # b, d, f, h are even letters
-    evenSquare = coord % 2 == 1 # even squares have odd values in Coordinate()
-    if evenLetter and evenSquare:
-        return blackSquare
-    elif evenLetter and not evenSquare:
-        return whiteSquare
-    elif not evenLetter and evenSquare:
-        return whiteSquare
+def tile_color(coord):
+    black_square = 211, 154, 62
+    white_square = 234, 249, 217
+    even_letter = (coord // 8) % 2 == 1 # b, d, f, h are even letters
+    even_square = coord % 2 == 1 # even squares have odd values in Coordinate()
+    if even_letter and even_square:
+        return black_square
+    elif even_letter and not even_square:
+        return white_square
+    elif not even_letter and even_square:
+        return white_square
     else: # not evenLetter and not evenSquare
-        return blackSquare
+        return black_square
 
 if __name__ == '__main__':
     main()

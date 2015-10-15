@@ -32,7 +32,7 @@ Model
 -----
 
 *board* - property:
-    Instance of **Gameboard** managed by Model. Treat as read-only.
+    Instance of **Gameboard** managed by Model. 
 
 *chips* - property:
     *Dictionary* where *keys* are **Coordinate** values and *items* are
@@ -40,7 +40,10 @@ Model
     is made, this property is updated to reflect the current gamestate.
 
 *turn* - property:
-    **Chip.Color** value to reflect whose turn it is in the current gamestate
+    **Chip.Color** value to reflect whose turn it is in the current gamestate.
+
+* All three properties are provided to read the gamestate, but should not be
+modified by the user.
 
 chipAvailableMoves(square):
     Args:
