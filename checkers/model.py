@@ -63,19 +63,19 @@ class Model:
                       Coordinate.f8: Chip(Chip.Color.black),
                       Coordinate.h8: Chip(Chip.Color.black)}
         for k in self.chips.keys():
-            self.board.setContent(k,self.chips[k])
+            self.board.set_content(k,self.chips[k])
         self.turn = Chip.Color.white
         self._current_chip = None
 
     def _neighbor_in_direction(self, square, direction):
-        neighborSquare = self.board.neighborInDirection(square, direction)
+        neighborSquare = self.board.neighbor_in_direction(square, direction)
         return neighborSquare
 
     def _next_neighbor_in_direction(self, square, direction):
-        neighbor_square = self.board.neighborInDirection(square, direction)
+        neighbor_square = self.board.neighbor_in_direction(square, direction)
         if neighbor_square is not None: # check the next
             new_neighbor = \
-                self.board.neighborInDirection(neighbor_square, direction)
+                self.board.neighbor_in_direction(neighbor_square, direction)
             if new_neighbor is not None:
                 return new_neighbor
         return None
@@ -83,12 +83,12 @@ class Model:
     def _enemy_in_neighbor(self, square, direction):
         neighbor = self._neighbor_in_direction(square, direction)
         return neighbor is not None and \
-               self.board.getContent(neighbor) is not None and \
-               self.board.getContent(neighbor).color != self.turn
+               self.board.get_content(neighbor) is not None and \
+               self.board.get_content(neighbor).color != self.turn
 
     def _directions_for_soldier(self):
-        white_directions = [Direction.topLeft, Direction.topRight]
-        black_directions = [Direction.btmLeft, Direction.btmRight]
+        white_directions = [Direction.top_left, Direction.top_right]
+        black_directions = [Direction.btm_left, Direction.btm_right]
         return white_directions \
                if self.turn == Chip.Color.white \
                else black_directions
@@ -100,7 +100,7 @@ class Model:
                 next_neighbor = \
                     self._next_neighbor_in_direction(square, direction)
                 if next_neighbor is not None and \
-                        self.board.getContent(next_neighbor) is None:
+                        self.board.get_content(next_neighbor) is None:
                     jumps.add((square, next_neighbor))
         return jumps
 
@@ -109,7 +109,7 @@ class Model:
         for direction in self._directions_for_soldier():
             neighbor = self._neighbor_in_direction(square, direction)
             if neighbor is not None and \
-                    self.board.getContent(neighbor) is None: 
+                    self.board.get_content(neighbor) is None: 
                 # empty square, valid move
                 moves.add((square, neighbor))
         return moves
@@ -133,7 +133,7 @@ class Model:
         my_moves = moves
         neighbor = self._neighbor_in_direction(square, direction)
         if neighbor is not None:
-            content = self.board.getContent(neighbor)
+            content = self.board.get_content(neighbor)
             if content is None and can_jump: 
                 # another empty square after a jump
                 my_moves.add((origin, neighbor))
@@ -148,7 +148,7 @@ class Model:
         moves, can_jump = set(), False
         neighbor = self._neighbor_in_direction(square, direction)
         while neighbor is not None: 
-            content = self.board.getContent(neighbor)
+            content = self.board.get_content(neighbor)
             if content is None: # empty
                 moves.add((square, neighbor))
             elif content.color != self. turn: # rival
@@ -172,8 +172,8 @@ class Model:
         return can_jump
 
     def _queen_chip_available_moves(self, square):
-        directions = [Direction.topLeft, Direction.topRight,
-                      Direction.btmLeft, Direction.btmRight]
+        directions = [Direction.top_left, Direction.top_right,
+                      Direction.btm_left, Direction.btm_right]
         moves, can_jump = set(), False
 
         for d in directions:
@@ -207,7 +207,7 @@ class Model:
         if not isinstance(square, Coordinate):
             raise TypeError("square variable must be from Coordinate enum")
         if square not in self.chips.keys() or \
-                self.board.getContent(square) is None:
+                self.board.get_content(square) is None:
             # chip is not in the game anymore
             return set(), False
         chip = self.chips[square]
@@ -263,12 +263,12 @@ class Model:
     def _remove_chips(self, origin, destination):
         removed = []
         direction = self._direction_of_move(origin, destination)
-        squares_jumped = self.board.pathInDirection(origin, 
-                                                    destination, 
-                                                    direction)
+        squares_jumped = self.board.path_in_direction(origin, 
+                                                      destination, 
+                                                      direction)
         for s in squares_jumped:
-            if self.board.getContent(s) != None:
-                self.board.clearSquare(s)
+            if self.board.get_content(s) != None:
+                self.board.clear_square(s)
                 del self.chips[s]
                 removed.append(s)
         return removed
@@ -278,14 +278,14 @@ class Model:
         direction = None
         if distance < 0: # moved left
             if distance % 7 == 0: # moved top
-                direction = Direction.topLeft
+                direction = Direction.top_left
             else: # distance % 9 == 0, moved btm
-                direction = Direction.btmLeft
+                direction = Direction.btm_left
         else: # moved right
             if distance % 9 == 0:
-                direction = Direction.topRight
+                direction = Direction.top_right
             else:
-                direction = Direction.btmRight
+                direction = Direction.btm_right
         return direction
 
     def move(self, origin, destination):
@@ -299,6 +299,7 @@ class Model:
             list: Coordinate values indicating the chip(s) removed
         Raises:
             TypeError: if origin or destination is not Coordinate
+            
         """
         if not isinstance(origin, Coordinate):
             raise TypeError("origin variable must be from Coordinate enum")
@@ -337,12 +338,13 @@ class Model:
             bool: True if the chip belongs to the team whose turn it is
         Raises:
             TypeError: if square is not Coordinate
+
         """
         if not isinstance(square, Coordinate):
             raise TypeError("square variable must be from Coordinate enum")
         # Python's lazy evaluation makes sure this expression will never
-        #   throw KeyError because if the key is not in the dictionary, the
-        #   second expression will not be evaluated
+        # throw KeyError because if the key is not in the dictionary, the
+        # second expression will not be evaluated
         return square in self.chips.keys() and \
                 self.chips[square].color == self.turn
 

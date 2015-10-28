@@ -30,53 +30,53 @@ class TestModel(unittest.TestCase):
 
     def test_initial_state(self):
         self.assertEqual(len(self.model.chips.keys()), 24)
-        self.assertEqual(self.model.board.getContent(Coordinate.a1).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.a1).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.c1).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.c1).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.e1).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.e1).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.g1).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.g1).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.b2).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.b2).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.d2).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.d2).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.f2).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.f2).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.h2).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.h2).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.a3).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.a3).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.c3).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.c3).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.e3).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.e3).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.g3).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.g3).color, 
             Chip.Color.white)
-        self.assertEqual(self.model.board.getContent(Coordinate.b6).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.b6).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.d6).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.d6).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.f6).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.f6).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.h6).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.h6).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.a7).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.a7).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.c7).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.c7).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.e7).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.e7).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.g7).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.g7).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.b8).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.b8).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.d8).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.d8).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.f8).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.f8).color, 
             Chip.Color.black)
-        self.assertEqual(self.model.board.getContent(Coordinate.h8).color, 
+        self.assertEqual(self.model.board.get_content(Coordinate.h8).color, 
             Chip.Color.black)
 
     def test_chip_available_moves_raises_TypeError(self):
@@ -256,30 +256,30 @@ class TestModel(unittest.TestCase):
             destination = "notCoordinate")
 
     def test_move_white_invalid(self):
-        chip = self.model.board.getContent(Coordinate.a3)
+        chip = self.model.board.get_content(Coordinate.a3)
         move, removed = self.model.move(Coordinate.a3, Coordinate.c4)
         self.assertEqual(move, self.model.Gamestate.invalidMove)
-        self.assertIs(chip, self.model.board.getContent(Coordinate.a3))
+        self.assertIs(chip, self.model.board.get_content(Coordinate.a3))
         self.assertNotIn(Coordinate.c4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.a3])
         self.assertEqual(len(removed),0)
 
     def test_move_black_invalid(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
-        chip = self.model.board.getContent(Coordinate.h6)
+        chip = self.model.board.get_content(Coordinate.h6)
         move, removed = self.model.move(Coordinate.h6, Coordinate.g4)
         self.assertEqual(move, self.model.Gamestate.invalidMove)
-        self.assertIs(chip, self.model.board.getContent(Coordinate.h6))
+        self.assertIs(chip, self.model.board.get_content(Coordinate.h6))
         self.assertNotIn(Coordinate.g4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.h6])
         self.assertEqual(len(removed),0)
 
     def test_move_white_valid_no_jump(self):
-        chip = self.model.board.getContent(Coordinate.a3)
+        chip = self.model.board.get_content(Coordinate.a3)
         move, removed = self.model.move(Coordinate.a3,Coordinate.b4)
-        self.assertIs(self.model.board.getContent(Coordinate.a3), None)
+        self.assertIs(self.model.board.get_content(Coordinate.a3), None)
         self.assertEqual(move, self.model.Gamestate.inProgress)
-        self.assertIs(self.model.board.getContent(Coordinate.b4), chip)
+        self.assertIs(self.model.board.get_content(Coordinate.b4), chip)
         self.assertIn(Coordinate.b4, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.b4])
         self.assertEqual(self.model.turn, Chip.Color.black)
@@ -287,11 +287,11 @@ class TestModel(unittest.TestCase):
 
     def test_move_black_valid_no_jump(self):
         self.model.move(Coordinate.a3,Coordinate.b4)
-        chip = self.model.board.getContent(Coordinate.h6)
+        chip = self.model.board.get_content(Coordinate.h6)
         move, removed = self.model.move(Coordinate.h6, Coordinate.g5)
-        self.assertIs(self.model.board.getContent(Coordinate.h6), None)
+        self.assertIs(self.model.board.get_content(Coordinate.h6), None)
         self.assertEqual(move, self.model.Gamestate.inProgress)
-        self.assertIs(self.model.board.getContent(Coordinate.g5), chip)
+        self.assertIs(self.model.board.get_content(Coordinate.g5), chip)
         self.assertIn(Coordinate.g5, self.model.chips.keys())
         self.assertIs(chip, self.model.chips[Coordinate.g5])
         self.assertIs(self.model.turn, Chip.Color.white)
@@ -303,10 +303,10 @@ class TestModel(unittest.TestCase):
         eater = self.model.chips[Coordinate.f4]
         move, removed = self.model.move(Coordinate.f4, Coordinate.h6)
         self.assertEqual(move, self.model.Gamestate.inProgress)
-        self.assertIs(eater, self.model.board.getContent(Coordinate.h6))
+        self.assertIs(eater, self.model.board.get_content(Coordinate.h6))
         self.assertIn(Coordinate.h6, self.model.chips.keys())
         self.assertIs(eater, self.model.chips[Coordinate.h6])
-        self.assertIsNone(self.model.board.getContent(Coordinate.g5))
+        self.assertIsNone(self.model.board.get_content(Coordinate.g5))
         self.assertNotIn(Coordinate.g5, self.model.chips.keys())
         self.assertEqual(removed, [Coordinate.g5])
 
@@ -317,10 +317,10 @@ class TestModel(unittest.TestCase):
         eater = self.model.chips[Coordinate.a5]
         move, removed = self.model.move(Coordinate.a5, Coordinate.c3)
         self.assertEqual(move, self.model.Gamestate.inProgress)
-        self.assertIs(eater, self.model.board.getContent(Coordinate.c3))
+        self.assertIs(eater, self.model.board.get_content(Coordinate.c3))
         self.assertIn(Coordinate.c3, self.model.chips.keys())
         self.assertIs(eater, self.model.chips[Coordinate.c3])
-        self.assertIsNone(self.model.board.getContent(Coordinate.b4))
+        self.assertIsNone(self.model.board.get_content(Coordinate.b4))
         self.assertNotIn(Coordinate.b4, self.model.chips.keys())
         self.assertEqual(removed, [Coordinate.b4])
 
